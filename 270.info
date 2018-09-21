@@ -1,0 +1,18 @@
+# This is a comment. It extends to the end of the line
+GLOBAL {
+       OUTPUTNAME      "270.s";
+       INPUTNAME       "270.bin";
+       STARTADDR       $010c;
+       PAGELENGTH      0;                  # No paging
+       CPU             "6502";
+};
+
+# One segment for the whole stuff
+SEGMENT { START $010c;  END   $2000; NAME "raw"; };
+
+RANGE { START $010c; END $010d; TYPE ByteTable; };
+RANGE { START $010e; END $2000; TYPE Code; };
+
+LABEL { Name "SETLFS"; Addr $FFBA; COMMENT "$FFBA: Set LA, FA, SA"; };
+LABEL { Name "SETNAM"; Addr $FFBD; COMMENT "$FFBD: Set length and FN address"; };
+LABEL { Name "LOAD";   Addr $FFD5; COMMENT "$FFD5: Load from file"; };
