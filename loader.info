@@ -1,0 +1,20 @@
+# This is a comment. It extends to the end of the line
+GLOBAL {
+       OUTPUTNAME      "loader.s";
+       INPUTNAME       "loader.prg";
+       STARTADDR       $03ff;
+       PAGELENGTH      0;                  # No paging
+       CPU             "6502";
+};
+
+# One segment for the whole stuff
+SEGMENT { START $03ff;  END   $2000; NAME "raw"; };
+
+RANGE { START $03ff; END $040f; TYPE ByteTable; };
+RANGE { START $0410; END $2000; TYPE Code; };
+
+LABEL { NAME "MAIN2";  ADDR $C483; };
+LABEL { NAME "CLRSCR"; ADDR $E55F; };
+LABEL { Name "SETLFS"; Addr $FFBA; COMMENT "$FFBA: Set LA, FA, SA"; };
+LABEL { Name "SETNAM"; Addr $FFBD; COMMENT "$FFBD: Set length and FN address"; };
+LABEL { Name "LOAD";   Addr $FFD5; COMMENT "$FFD5: Load from file"; };
