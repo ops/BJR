@@ -17,29 +17,6 @@ LEABF   := $EABF
 
         .segment "CODE"
 
-; 270
-;-----------------------------
-
-L010E:  bne     L0113
-L0110:  jmp     L1A71
-
-L0113:  lda     #$74
-        cmp     ($FD),y
-        beq     L0110
-        lda     #$6F
-        cmp     ($FD),y
-        beq     L0110
-        lda     #$70
-        cmp     ($FD),y
-        beq     L0110
-        lda     #$71
-        cmp     ($FD),y
-        beq     L0110
-        lda     #$72
-        cmp     ($FD),y
-        beq     L0110
-        jmp     L1A79
-
 ; 308
 ;-----------------------------
         ldy     L1B5D+1
@@ -314,7 +291,24 @@ L1A53:  ldx     $0334
         ldy     #$00
         lda     #$20
         cmp     ($FD),y
-        jmp     L010E
+L010E:  bne     L0113
+L0110:  jmp     L1A71
+L0113:  lda     #$74
+        cmp     ($FD),y
+        beq     L0110
+        lda     #$6F
+        cmp     ($FD),y
+        beq     L0110
+        lda     #$70
+        cmp     ($FD),y
+        beq     L0110
+        lda     #$71
+        cmp     ($FD),y
+        beq     L0110
+        lda     #$72
+        cmp     ($FD),y
+        beq     L0110
+        jmp     L1A79
 
 L1A71:  lda     $FD
         sta     $FB
