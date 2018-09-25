@@ -1,29 +1,52 @@
-; da65 V2.17 - Git d52d986a
-; Created:    2018-09-21 21:42:47
-; Input file: loader.prg
-; Page:       1
-
-
-        .setcpu "6502"
+;;;
+;;;
+;;;
 
 L010E           := $010E
 MAIN2           := $C483
-CLRSCR          := $E55F
-SETLFS          := $FFBA                        ; $FFBA: Set LA, FA, SA
-SETNAM          := $FFBD                        ; $FFBD: Set length and FN address
-LOAD            := $FFD5                        ; $FFD5: Load from file
 
-.segment        "raw": absolute
+	.setcpu "6502"
 
-        .byte   $01,$04,$0B,$04,$FF,$FF,$9E,$31
-        .byte   $30,$34,$30,$00,$00,$00,$00,$00
-        .byte   $00
+        .include "cbm_kernal.inc"
+        .include "vic20.inc"
+
+        .export  __LOADADDR__: absolute = 1
+        .segment "LOADADDR"
+        .addr *+2
+
+        ; The following symbol is used by linker config to force the module
+        ; to get included into the output file
+        .export __EXEHDR__: absolute = 1
+	.segment        "EXEHDR"
+
+        .addr   Next
+        .word   .version        ; Line number
+        .byte   $9E             ; SYS token
+;       .byte   <(((Start / 10000) .mod 10) + '0')
+        .byte   <(((Start /  1000) .mod 10) + '0')
+        .byte   <(((Start /   100) .mod 10) + '0')
+        .byte   <(((Start /    10) .mod 10) + '0')
+        .byte   <(((Start /     1) .mod 10) + '0')
+        .byte   $00             ; End of BASIC line
+Next:   .word   0               ; BASIC end marker
+Start:
+
+; If the start address is larger than 4 digits, the header generated above
+; will not contain the highest digit. Instead of wasting one more digit that
+; is almost never used, check it at link time and generate an error so the
+; user knows something is wrong.
+
+.assert (Start < 10000), error, "Start address too large for generated BASIC stub"
+
+        .segment "CODE"
+
         jsr     CLRSCR
         ldx     #$10
         lda     #$00
 L0417:  sta     $0FFF,x
         dex
         bne     L0417
+
         lda     #$0C
         sta     $9000
         lda     #$2B
@@ -31,9 +54,10 @@ L0417:  sta     $0FFF,x
         lda     #$96
         sta     $9002
         lda     #$15
-        sta     $9003
+        sta     VIC_LINES
         lda     #$FC
         sta     $9005
+
         ldy     #$00
         lda     #$00
         sta     $FB
@@ -53,22 +77,14 @@ L0446:  lda     #$00
         lda     #$20
         cmp     $FC
         bne     L0446
+
         lda     #$E8
-        sta     $900F
+        sta     VIC_COLOR
         lda     #$97
         sta     $900E
         lda     #$0A
-        sta     $0286
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
+        sta     CHARCOLOR
+
         lda     #$01
         ldx     #$01
         ldy     #$FF
@@ -79,12 +95,14 @@ L0446:  lda     #$00
         ldx     #$FF
         ldy     #$FF
         jsr     LOAD
+
         lda     #$01
         ldx     #$01
         ldy     #$FF
         jsr     SETLFS
         lda     #$00
         jsr     SETNAM
+
         ldx     #$3C
 L049B:  lda     L04AF,x
         sta     $010D,x
@@ -92,19 +110,11 @@ L049B:  lda     L04AF,x
         bne     L049B
         jmp     L010E
 
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-L04AF:  nop
-        lda     #$00
+L04AF:  lda     #$00
         ldx     #$FF
         ldy     #$FF
         jsr     LOAD
+
         lda     $033D
         sta     $2B
         lda     $033E
@@ -113,6 +123,7 @@ L04AF:  nop
         sta     $2D
         lda     $0340
         sta     $2E
+
         lda     #$52
         sta     $0277
         lda     #$D5
@@ -123,48 +134,3 @@ L04AF:  nop
         sta     $C6
         jsr     CLRSCR
         jmp     MAIN2
-
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
-        brk
