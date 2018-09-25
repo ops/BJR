@@ -5,6 +5,15 @@
 L010E           := $010E
 MAIN2           := $C483
 
+
+
+VICCR0 := VIC+$0
+VICCR1 := VIC+$1
+VICCR2 := VIC+$2
+VICCR3 := VIC+$3
+VICCR4 := VIC+$4
+VICCR5 := VIC+$5
+
 	.setcpu "6502"
 
         .include "cbm_kernal.inc"
@@ -48,15 +57,15 @@ L0417:  sta     $0FFF,x
         bne     L0417
 
         lda     #$0C
-        sta     $9000
+        sta     VICCR0
         lda     #$2B
-        sta     $9001
-        lda     #$96
-        sta     $9002
-        lda     #$15
-        sta     VIC_LINES
+        sta     VICCR1
+        lda     #$80+22
+        sta     VICCR2
+        lda     #$15 ;;(20<<1) | $01
+        sta     VICCR3
         lda     #$FC
-        sta     $9005
+        sta     VICCR5
 
         ldy     #$00
         lda     #$00
@@ -86,16 +95,20 @@ L0446:  lda     #$00
         sta     CHARCOLOR
 
         lda     #$01
-        ldx     #$01
+        ldx     $ba
         ldy     #$FF
         jsr     SETLFS
-        lda     #$00
+        lda     #pic_end-pic
+	ldx     #<pic
+	ldy     #>pic
         jsr     SETNAM
         lda     #$00
         ldx     #$FF
         ldy     #$FF
         jsr     LOAD
 
+	rts
+	
         lda     #$01
         ldx     #$01
         ldy     #$FF
@@ -134,3 +147,6 @@ L04AF:  lda     #$00
         sta     $C6
         jsr     CLRSCR
         jmp     MAIN2
+
+pic:	.byte "picture.bin"
+pic_end:

@@ -8,6 +8,11 @@ VICCRC  := VIC+$0C
 VICCRE  := VIC+$0E
 LEABF   := $EABF
 
+SCREEN_MEM := $1000
+COLOR_MEM := $9400
+
+        .setcpu "6502"
+
         .include "cbm_kernal.inc"
         .include "vic20.inc"
 
@@ -17,21 +22,22 @@ LEABF   := $EABF
 
         .segment "CODE"
 
-; 308
-;-----------------------------
-        ldy     L1B5D+1
-        iny
-        cpy     #$73
-        bne     L013E
-        ldy     #$6F
-L013E:  sty     L1B5D+1
-        rts
+	jmp L0134 ; 00 inc haamu 308
+	jmp L0142 ; 03 set color mem 322
+	jmp L015D ; 06 349
+	jmp L0177 ; 09 375
+	jmp L018E ; 12 398
+	jmp L17CD ; 15 6093
+	jmp L17DA ; 18 6106
+	jmp L02D5 ; 21 725
+	jmp set_irq2 ; 24
+	jmp set_tune1 ; 27
+	jmp set_tune2 ; 30
+	jmp set_tune3 ; 33
 
-; 322
-;-----------------------------
-L0142:  lda     #$1A
+L0142:  lda     #<(COLOR_MEM+$001A)
         sta     $FB
-        lda     #$94
+        lda     #>(COLOR_MEM+$001A)
         sta     $FC
 L014A:  ldy     #$00
         lda     $033F
@@ -39,7 +45,7 @@ L014F:  sta     ($FB),y
         iny
         bne     L014F
         inc     $FC
-        lda     #$98
+        lda     #>(COLOR_MEM+$0400)
         cmp     $FC
         bne     L014A
         rts
@@ -54,43 +60,36 @@ L0169:  iny
         bne     L015F
         inc     $FC
         inc     $FE
-        lda     #$20
+        lda     #>(SCREEN_MEM+$0400)
         cmp     $FC
         bne     L015D
         rts
 
-; 375
-;-----------------------------
-        lda     #$01
-        tax
-        ldy     #$FF
+L0177:	lda     #$01
+        ldx     $ba
+        ldy     #$00
         jsr     SETLFS
-        lda     #$00
+        lda     #(NAME_END-NAME)
+	ldx     #<NAME
+	ldy     #>NAME
         jsr     SETNAM
         lda     #$00
-        ldx     #$FF
-        ldy     #$FF
+        ldx     #<(SCREEN_MEM+26)
+        ldy     #>(SCREEN_MEM+26)
         jsr     LOAD
         rts
 
-; 398
-;-----------------------------
-        sei
-        jsr     L1A53
-        cli
-        rts
+NAME:	.byte "map01.bin"
+NAME_END:
 
-; 725
-;-----------------------------
-
-        jsr     CLRSCR
+L02D5:	jsr     CLRSCR
         lda     #$00
         sta     $FB
-        lda     #$1C
+        lda     #>SCREEN_MEM
         sta     $FC
         lda     #$00
         sta     $FD
-        lda     #$94
+        lda     #>COLOR_MEM
         sta     $FE
 L02E8:  ldy     #$00
 L02EA:  lda     #$20
@@ -101,105 +100,12 @@ L02EA:  lda     #$20
         bne     L02EA
         inc     $FC
         inc     $FE
-        lda     #$20
+        lda     #>(SCREEN_MEM + $0400)
         cmp     $FC
         bne     L02E8
         rts
 
-; $1500
-;-----------------------------
-
-        .byte   $C1,$0A,$00,$01,$C1,$0A
-        .byte   $C8,$0A,$CB,$0A,$00,$01,$CB,$0A
-        .byte   $00,$01,$CB,$0A,$C8,$0A,$C1,$0A
-        .byte   $00,$01,$C1,$0A,$00,$01,$C1,$0A
-        .byte   $BD,$0A,$C1,$0A,$C8,$14,$AC,$14
-        .byte   $C8,$0A,$00,$01,$C8,$0A,$CB,$0A
-        .byte   $D1,$0A,$00,$01,$D1,$0A,$00,$01
-        .byte   $D1,$0A,$CB,$0A,$C8,$0A,$CB,$0A
-        .byte   $00,$01,$CB,$0A,$D1,$0A,$D8,$0A
-        .byte   $D6,$14,$00,$01,$D6,$14,$DC,$0A
-        .byte   $00,$01,$DC,$0A,$D8,$0A,$D6,$0A
-        .byte   $D8,$0A,$00,$01,$D8,$0A,$D6,$0A
-        .byte   $D1,$0A,$D6,$0A,$00,$01,$D6,$0A
-        .byte   $D1,$0A,$D6,$0A,$D8,$14,$D1,$14
-        .byte   $DC,$0A,$00,$01,$DC,$0A,$D8,$0A
-        .byte   $D6,$0A,$D8,$0A,$00,$01,$D8,$0A
-        .byte   $D6,$0A,$D1,$0A,$CE,$0A,$C1,$0A
-        .byte   $C8,$0A,$CE,$0A,$D1,$14,$00,$01
-        .byte   $D1,$14,$00,$01,$D1,$0A,$00,$01
-        .byte   $D1,$0A,$CB,$0A,$C8,$0A,$CB,$0A
-        .byte   $00,$01,$CB,$0A,$C8,$0A,$C1,$0A
-        .byte   $C8,$0A,$00,$01,$C8,$0A,$C1,$0A
-        .byte   $C8,$0A,$CB,$14,$C1,$14,$D1,$0A
-        .byte   $00,$01,$D1,$0A,$CB,$0A,$C8,$0A
-        .byte   $CB,$0A,$00,$01,$CB,$0A,$C8,$0A
-        .byte   $C1,$0A,$BD,$0A,$AC,$0A,$B5,$0A
-        .byte   $BD,$0A,$C1,$14,$00,$01,$C1,$14
-        .byte   $00,$01,$01,$00
-
-; $1600
-;-----------------------------
-        .byte   $BD,$0A,$00,$01,$BD,$0A
-        .byte   $C1,$0A,$C8,$0A,$CB,$14,$C8,$14
-        .byte   $BD,$0A,$00,$01,$BD,$0A,$C1,$0A
-        .byte   $C8,$0A,$D1,$14,$C8,$14,$BD,$0A
-        .byte   $00,$01,$BD,$0A,$C1,$0A,$C8,$0A
-        .byte   $00,$01,$C8,$0F,$C1,$05,$BD,$0A
-        .byte   $B5,$0A,$AC,$0A,$00,$01,$AC,$0A
-        .byte   $B5,$0A,$00,$01,$B5,$0A,$AC,$14
-        .byte   $00,$01,$01,$00
-
-; $1700
-;-----------------------------
-        .byte   $BD,$0A,$00,$01,$BD,$0A
-        .byte   $C1,$0A,$C8,$0A,$00,$01,$C8,$0F
-        .byte   $C1,$05,$BD,$0A,$B5,$0A,$AC,$0A
-        .byte   $00,$01,$AC,$0A,$B5,$0A,$BD,$0A
-        .byte   $00,$01,$BD,$0F,$B5,$05,$00,$01
-        .byte   $B5,$14,$BD,$0A,$00,$01,$BD,$0A
-        .byte   $C1,$0A,$C8,$0A,$00,$01,$C8,$0F
-        .byte   $C1,$05,$BD,$0A,$B5,$0A,$AC,$0A
-        .byte   $00,$01,$AC,$0A,$B5,$0A,$BD,$0A
-        .byte   $B5,$0F,$AC,$05,$00,$01,$AC,$14
-        .byte   $B5,$14,$BD,$0A,$AC,$0A,$B5,$0A
-        .byte   $BD,$05,$C1,$05,$BD,$0A,$AC,$0A
-        .byte   $B5,$0A,$BD,$05,$C1,$05,$BD,$0A
-        .byte   $B5,$0A,$AB,$0A,$B5,$0A,$91,$14
-        .byte   $BD,$0A,$00,$01,$BD,$0A,$C1,$0A
-        .byte   $C8,$0A,$00,$01,$C8,$0F,$C1,$05
-        .byte   $BD,$0A,$B5,$0A,$AC,$0A,$00,$01
-        .byte   $AC,$0A,$B5,$0A,$BD,$0A,$B5,$0F
-        .byte   $AC,$05,$00,$01,$AC,$14,$00,$01
-        .byte   $01,$00
-
-
-L1798:  lda     $0335
-        cmp     $00
-        beq     L17A4
-        inc     $00
-        jmp     LEABF
-
-L17A4:  ldy     #$00
-        lda     ($01),y
-        sta     VICCRC
-        sta     VICCRB
-        cmp     #$01
-        beq     L17C6
-        inc     $01
-        lda     ($01),y
-        sta     $0335
-        sty     a:$00
-        inc     $01
-        lda     #$0F
-        sta     VICCRE
-        jmp     LEABF
-
-L17C6:  sty     $00
-        sty     $01
-        jmp     LEABF
-
-        sei
+L17CD:  sei
         lda     #<L17E7
         sta     IRQVec
         lda     #>L17E7
@@ -207,7 +113,16 @@ L17C6:  sty     $00
         cli
         rts
 
-        sei
+set_irq2:
+	sei
+        lda     #<irq2
+        sta     IRQVec
+        lda     #>irq2
+        sta     IRQVec+1
+        cli
+        rts
+
+L17DA:	sei
         lda     #$BF
         sta     IRQVec
         lda     #$EA
@@ -222,7 +137,11 @@ L17E7:  ldx     $0336
         jsr     L1B15
         ldx     #$00
 L17F4:  stx     $0336
-        jmp     L1798
+        jsr     play_music
+        jmp     LEABF
+
+irq2:	jsr     play_music
+        jmp     LEABF
 
 L1A00:  ldy     #$00
         lda     #$20
@@ -278,6 +197,11 @@ L1A45:  clc
         lda     $FC
         adc     #$00
         sta     $FE
+        rts
+
+L018E:	sei
+        jsr     L1A53
+        cli
         rts
 
 L1A53:  ldx     $0334
@@ -371,7 +295,7 @@ L1ADB:  sec
 
 L1AE9:  clc
         lda     $FB
-        adc     #$1A
+        adc     #$1A ;; xsize
         sta     $FD
         lda     $FC
         adc     #$00
@@ -441,3 +365,120 @@ L1B5D:	lda     #$6F
         lda     #$FF
         sta     VIA2_DDRB
         rts
+
+L0134:	ldy     L1B5D+1
+        iny
+        cpy     #$73
+        bne     L013E
+        ldy     #$6F
+L013E:  sty     L1B5D+1
+        rts
+
+play_music:
+	ldy     $0000
+	beq     @next
+	cpy     #$FF
+	beq     @skip
+	dey
+	sty     $0000
+	rts
+@next:  lda     ($01),y
+        sta     VICCRC
+        sta     VICCRB
+	iny
+        lda     ($01),y
+        sta     $0000
+	clc
+	lda     $01
+	adc     #$02
+	sta     $01
+	bcc     @skip
+	inc     $02
+@skip:  rts
+
+set_tune1:
+	lda     #<tune1
+	sta     $01
+	lda     #>tune1
+	sta     $02
+	lda     #$00
+	sta     $0000
+	rts
+
+set_tune2:
+	lda     #<tune2
+	sta     $01
+	lda     #>tune2
+	sta     $02
+	lda     #$00
+	sta     $0000
+	rts
+
+set_tune3:
+	lda     #<tune3
+	sta     $01
+	lda     #>tune3
+	sta     $02
+	lda     #$00
+	sta     $0000
+	rts
+
+tune1:	.byte   $C1,$0A,$00,$01,$C1,$0A
+        .byte   $C8,$0A,$CB,$0A,$00,$01,$CB,$0A
+        .byte   $00,$01,$CB,$0A,$C8,$0A,$C1,$0A
+        .byte   $00,$01,$C1,$0A,$00,$01,$C1,$0A
+        .byte   $BD,$0A,$C1,$0A,$C8,$14,$AC,$14
+        .byte   $C8,$0A,$00,$01,$C8,$0A,$CB,$0A
+        .byte   $D1,$0A,$00,$01,$D1,$0A,$00,$01
+        .byte   $D1,$0A,$CB,$0A,$C8,$0A,$CB,$0A
+        .byte   $00,$01,$CB,$0A,$D1,$0A,$D8,$0A
+        .byte   $D6,$14,$00,$01,$D6,$14,$DC,$0A
+        .byte   $00,$01,$DC,$0A,$D8,$0A,$D6,$0A
+        .byte   $D8,$0A,$00,$01,$D8,$0A,$D6,$0A
+        .byte   $D1,$0A,$D6,$0A,$00,$01,$D6,$0A
+        .byte   $D1,$0A,$D6,$0A,$D8,$14,$D1,$14
+        .byte   $DC,$0A,$00,$01,$DC,$0A,$D8,$0A
+        .byte   $D6,$0A,$D8,$0A,$00,$01,$D8,$0A
+        .byte   $D6,$0A,$D1,$0A,$CE,$0A,$C1,$0A
+        .byte   $C8,$0A,$CE,$0A,$D1,$14,$00,$01
+        .byte   $D1,$14,$00,$01,$D1,$0A,$00,$01
+        .byte   $D1,$0A,$CB,$0A,$C8,$0A,$CB,$0A
+        .byte   $00,$01,$CB,$0A,$C8,$0A,$C1,$0A
+        .byte   $C8,$0A,$00,$01,$C8,$0A,$C1,$0A
+        .byte   $C8,$0A,$CB,$14,$C1,$14,$D1,$0A
+        .byte   $00,$01,$D1,$0A,$CB,$0A,$C8,$0A
+        .byte   $CB,$0A,$00,$01,$CB,$0A,$C8,$0A
+        .byte   $C1,$0A,$BD,$0A,$AC,$0A,$B5,$0A
+        .byte   $BD,$0A,$C1,$14,$00,$01,$C1,$14
+        .byte   $00,$01,$01,$ff
+
+tune2:	.byte   $BD,$0A,$00,$01,$BD,$0A
+        .byte   $C1,$0A,$C8,$0A,$CB,$14,$C8,$14
+        .byte   $BD,$0A,$00,$01,$BD,$0A,$C1,$0A
+        .byte   $C8,$0A,$D1,$14,$C8,$14,$BD,$0A
+        .byte   $00,$01,$BD,$0A,$C1,$0A,$C8,$0A
+        .byte   $00,$01,$C8,$0F,$C1,$05,$BD,$0A
+        .byte   $B5,$0A,$AC,$0A,$00,$01,$AC,$0A
+        .byte   $B5,$0A,$00,$01,$B5,$0A,$AC,$14
+        .byte   $00,$01,$01,$ff
+
+tune3:	.byte   $BD,$0A,$00,$01,$BD,$0A
+        .byte   $C1,$0A,$C8,$0A,$00,$01,$C8,$0F
+        .byte   $C1,$05,$BD,$0A,$B5,$0A,$AC,$0A
+        .byte   $00,$01,$AC,$0A,$B5,$0A,$BD,$0A
+        .byte   $00,$01,$BD,$0F,$B5,$05,$00,$01
+        .byte   $B5,$14,$BD,$0A,$00,$01,$BD,$0A
+        .byte   $C1,$0A,$C8,$0A,$00,$01,$C8,$0F
+        .byte   $C1,$05,$BD,$0A,$B5,$0A,$AC,$0A
+        .byte   $00,$01,$AC,$0A,$B5,$0A,$BD,$0A
+        .byte   $B5,$0F,$AC,$05,$00,$01,$AC,$14
+        .byte   $B5,$14,$BD,$0A,$AC,$0A,$B5,$0A
+        .byte   $BD,$05,$C1,$05,$BD,$0A,$AC,$0A
+        .byte   $B5,$0A,$BD,$05,$C1,$05,$BD,$0A
+        .byte   $B5,$0A,$AB,$0A,$B5,$0A,$91,$14
+        .byte   $BD,$0A,$00,$01,$BD,$0A,$C1,$0A
+        .byte   $C8,$0A,$00,$01,$C8,$0F,$C1,$05
+        .byte   $BD,$0A,$B5,$0A,$AC,$0A,$00,$01
+        .byte   $AC,$0A,$B5,$0A,$BD,$0A,$B5,$0F
+        .byte   $AC,$05,$00,$01,$AC,$14,$00,$01
+        .byte   $01,$ff
