@@ -5,7 +5,7 @@
 L010E           := $010E
 MAIN2           := $C483
 
-
+PTR = $FB
 
 VICCR0 := VIC+$0
 VICCR1 := VIC+$1
@@ -25,36 +25,53 @@ VICCR5 := VIC+$5
 
         ; The following symbol is used by linker config to force the module
         ; to get included into the output file
-        .export __EXEHDR__: absolute = 1
-	.segment        "EXEHDR"
+;        .export __EXEHDR__: absolute = 1
+;	.segment        "EXEHDR"
 
-        .addr   Next
-        .word   .version        ; Line number
-        .byte   $9E             ; SYS token
-;       .byte   <(((Start / 10000) .mod 10) + '0')
-        .byte   <(((Start /  1000) .mod 10) + '0')
-        .byte   <(((Start /   100) .mod 10) + '0')
-        .byte   <(((Start /    10) .mod 10) + '0')
-        .byte   <(((Start /     1) .mod 10) + '0')
-        .byte   $00             ; End of BASIC line
-Next:   .word   0               ; BASIC end marker
-Start:
+;        .addr   Next
+;        .word   .version        ; Line number
+;        .byte   $9E             ; SYS token
+;;;       .byte   <(((Start / 10000) .mod 10) + '0')
+;        .byte   <(((Start /  1000) .mod 10) + '0')
+;        .byte   <(((Start /   100) .mod 10) + '0')
+;        .byte   <(((Start /    10) .mod 10) + '0')
+;        .byte   <(((Start /     1) .mod 10) + '0')
+;        .byte   $00             ; End of BASIC line
+;Next:   .word   0               ; BASIC end marker
+;Start:
 
 ; If the start address is larger than 4 digits, the header generated above
 ; will not contain the highest digit. Instead of wasting one more digit that
 ; is almost never used, check it at link time and generate an error so the
 ; user knows something is wrong.
 
-.assert (Start < 10000), error, "Start address too large for generated BASIC stub"
+;.assert (Start < 10000), error, "Start address too large for generated BASIC stub"
+
+
 
         .segment "CODE"
 
         jsr     CLRSCR
-        ldx     #$10
-        lda     #$00
-L0417:  sta     $0FFF,x
-        dex
-        bne     L0417
+
+	ldx     #$1e		; start of screen mem
+	stx     PTR+1
+	ldx     #0
+	stx     PTR
+	clc
+@loop1:	txa
+	ldy     #0
+@loop2:	sta     (PTR),y
+	adc     #10
+	iny
+	cpy     #22
+	bne     @loop2
+	tya
+	clc
+	adc     PTR
+	sta     PTR
+	inx
+	cpx     #10
+	bne     @loop1
 
         lda     #$0C
         sta     VICCR0
@@ -71,11 +88,11 @@ L0417:  sta     $0FFF,x
         lda     #$00
         sta     $FB
         sta     $FD
-        lda     #$1E
+        lda     #$10
         sta     $FC
-        lda     #$96
+        lda     #$94
         sta     $FE
-L0446:  lda     #$00
+L0446:  lda     #$55
         sta     ($FB),y
         lda     #$0A
         sta     ($FD),y
@@ -83,7 +100,7 @@ L0446:  lda     #$00
         bne     L0446
         inc     $FC
         inc     $FE
-        lda     #$20
+        lda     #$14
         cmp     $FC
         bne     L0446
 
@@ -96,19 +113,19 @@ L0446:  lda     #$00
 
         lda     #$01
         ldx     $ba
-        ldy     #$FF
+        ldy     #$00
         jsr     SETLFS
         lda     #pic_end-pic
 	ldx     #<pic
 	ldy     #>pic
         jsr     SETNAM
         lda     #$00
-        ldx     #$FF
-        ldy     #$FF
-        jsr     LOAD
+        ldx     #$00
+        ldy     #$10
+	jsr     LOAD
 
 	rts
-	
+
         lda     #$01
         ldx     #$01
         ldy     #$FF
@@ -148,5 +165,5 @@ L04AF:  lda     #$00
         jsr     CLRSCR
         jmp     MAIN2
 
-pic:	.byte "picture.bin"
+pic:	.byte "picture.bin.xxx"
 pic_end:
