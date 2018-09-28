@@ -1,9 +1,8 @@
 ;;;
+;;; Bomb Jack Revisited
 ;;;
+;;; 1985,2018 ops
 ;;;
-
-
-PTR = $FB
 
 VICCR0 := VIC+$0
 VICCR1 := VIC+$1
@@ -11,6 +10,16 @@ VICCR2 := VIC+$2
 VICCR3 := VIC+$3
 VICCR4 := VIC+$4
 VICCR5 := VIC+$5
+VICCR6 := VIC+$6
+VICCR7 := VIC+$7
+VICCR8 := VIC+$8
+VICCR9 := VIC+$9
+VICCRA := VIC+$A
+VICCRB := VIC+$B
+VICCRC := VIC+$C
+VICCRD := VIC+$D
+VICCRE := VIC+$E
+VICCRF := VIC+$F
 
 	.setcpu "6502"
 
@@ -47,29 +56,26 @@ Start:
 
         .segment "CODE"
 
-        jsr     CLRSCR
-
-        lda     #$E8
-        sta     VIC_COLOR
-        lda     #$97
-        sta     $900E
-        lda     #$0A
+        lda     #$07
         sta     CHARCOLOR
 
+        jsr     CLRSCR
+
+        lda     #$08
+        sta     VIC_COLOR
+
         lda     #$01
-        ldx     $ba
-        ldy     #$00
+        ldx     $BA
+        ldy     #$FF
         jsr     SETLFS
-        lda     #pic_end-pic
-	ldx     #<pic
-	ldy     #>pic
+        lda     #fname_end-fname
+	ldx     #<fname
+	ldy     #>fname
         jsr     SETNAM
         lda     #$00
-        ldx     #$00
-        ldy     #$10
 	jsr     LOAD
 
 	jmp     $2000
 
-pic:	.byte "picture.bin"
-pic_end:
+fname:	.byte "loader"
+fname_end:
