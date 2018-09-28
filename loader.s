@@ -1,11 +1,13 @@
 ;;;
+;;; Bomb Jack Revisited
 ;;;
+;;; 1985,2018 ops
 ;;;
 
 L010E           := $010E
 MAIN2           := $C483
 
-PTR = $FB
+PTR1 = $FB
 
 VICCR0 := VIC+$0
 VICCR1 := VIC+$1
@@ -13,6 +15,17 @@ VICCR2 := VIC+$2
 VICCR3 := VIC+$3
 VICCR4 := VIC+$4
 VICCR5 := VIC+$5
+VICCR6 := VIC+$6
+VICCR7 := VIC+$7
+VICCR8 := VIC+$8
+VICCR9 := VIC+$9
+VICCRA := VIC+$A
+VICCRB := VIC+$B
+VICCRC := VIC+$C
+VICCRD := VIC+$D
+VICCRE := VIC+$E
+VICCRF := VIC+$F
+
 
 	.setcpu "6502"
 
@@ -23,55 +36,26 @@ VICCR5 := VIC+$5
         .segment "LOADADDR"
         .addr *+2
 
-        ; The following symbol is used by linker config to force the module
-        ; to get included into the output file
-;        .export __EXEHDR__: absolute = 1
-;	.segment        "EXEHDR"
-
-;        .addr   Next
-;        .word   .version        ; Line number
-;        .byte   $9E             ; SYS token
-;;;       .byte   <(((Start / 10000) .mod 10) + '0')
-;        .byte   <(((Start /  1000) .mod 10) + '0')
-;        .byte   <(((Start /   100) .mod 10) + '0')
-;        .byte   <(((Start /    10) .mod 10) + '0')
-;        .byte   <(((Start /     1) .mod 10) + '0')
-;        .byte   $00             ; End of BASIC line
-;Next:   .word   0               ; BASIC end marker
-;Start:
-
-; If the start address is larger than 4 digits, the header generated above
-; will not contain the highest digit. Instead of wasting one more digit that
-; is almost never used, check it at link time and generate an error so the
-; user knows something is wrong.
-
-;.assert (Start < 10000), error, "Start address too large for generated BASIC stub"
-
-
-
         .segment "CODE"
 
+        lda     #$0A
+        sta     CHARCOLOR
+	lda     #$1E
+	sta     $0288
         jsr     CLRSCR
 
-	ldx     #$1e		; start of screen mem
-	stx     PTR+1
-	ldx     #0
-	stx     PTR
-	clc
-@loop1:	txa
-	ldy     #0
-@loop2:	sta     (PTR),y
-	adc     #10
-	iny
-	cpy     #22
-	bne     @loop2
-	tya
-	clc
-	adc     PTR
-	sta     PTR
-	inx
-	cpx     #10
-	bne     @loop1
+	ldx     #$1E		; start of screen mem
+	jsr     fill_chars
+
+	lda     #$00
+	ldx     #$0e
+	ldy     #$10
+	jsr     fill_pages
+
+        lda     #$0A
+	ldx     #$02
+        ldy     #$96
+	jsr     fill_pages
 
         lda     #$0C
         sta     VICCR0
@@ -83,45 +67,20 @@ VICCR5 := VIC+$5
         sta     VICCR3
         lda     #$FC
         sta     VICCR5
-
-        ldy     #$00
-        lda     #$00
-        sta     $FB
-        sta     $FD
-        lda     #$10
-        sta     $FC
-        lda     #$94
-        sta     $FE
-L0446:  lda     #$55
-        sta     ($FB),y
-        lda     #$0A
-        sta     ($FD),y
-        iny
-        bne     L0446
-        inc     $FC
-        inc     $FE
-        lda     #$14
-        cmp     $FC
-        bne     L0446
-
-        lda     #$E8
-        sta     VIC_COLOR
         lda     #$97
-        sta     $900E
-        lda     #$0A
-        sta     CHARCOLOR
+        sta     VICCRE
+        lda     #$E8
+        sta     VICCRF
 
         lda     #$01
-        ldx     $ba
-        ldy     #$00
+        ldx     $BA
+        ldy     #$FF
         jsr     SETLFS
         lda     #pic_end-pic
 	ldx     #<pic
 	ldy     #>pic
         jsr     SETNAM
         lda     #$00
-        ldx     #$00
-        ldy     #$10
 	jsr     LOAD
 
 	rts
@@ -165,5 +124,44 @@ L04AF:  lda     #$00
         jsr     CLRSCR
         jmp     MAIN2
 
-pic:	.byte "picture.bin.xxx"
+
+.proc fill_chars
+	stx     PTR1+1
+	ldx     #$00
+	stx     PTR1
+	clc
+@loop1:	txa
+	ldy     #$00
+@loop2:	sta     (PTR1),y
+	adc     #10
+	iny
+	cpy     #22
+	bne     @loop2
+	tya
+	clc
+	adc     PTR1
+	sta     PTR1
+	inx
+	cpx     #10
+	bne     @loop1
+	rts
+.endproc
+
+.proc fill_pages
+	;; A = fill value
+	;; X = number of pages
+	;; Y = start page
+        sty     PTR1+1
+        ldy     #$00
+        sty     PTR1
+@loop:  sta     (PTR1),y
+        iny
+        bne     @loop
+        inc     PTR1+1
+	dex
+        bne     @loop
+	rts
+.endproc
+
+pic:	.byte "picture.bin"
 pic_end:

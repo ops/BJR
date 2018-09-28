@@ -2,15 +2,21 @@
 # Makefile for BJR
 #
 
-ML_PRG := ml.prg
-ML_CONFIG := ml.cfg
-ML_START_ADDR := 8192
 BAS_PRG = main.prg
 BAS_SRC = main.bas
-#LOADER_PRG = loader.prg
-LOADER_PRG = l
-LOADER_SRC = loader.s
+
+ML_CONFIG := ml.cfg
+ML_PRG := ml.prg
+ML_OBJECTS := ml.o
+ML_START_ADDR := 8192
+
+LOADER_PRG = loader
+LOADER_OBJECTS := loader.o
 LOADER_START_ADDR := 8192
+
+BJR_PRG = bj\ revisited
+BJR_OBJECTS := bjr.o
+BJR_START_ADDR := 4609
 
 AS := ca65
 LD := ld65
@@ -23,11 +29,8 @@ ASFLAGS += -t vic20
 # Additional linker flags and options.
 LDFLAGS = -C $(ML_CONFIG)
 
-# Set OBJECTS
-ML_OBJECTS := ml.o
-LOADER_OBJECTS := loader.o
 
-all: $(BAS_PRG) $(ML_PRG) $(LOADER_PRG)
+all: $(BAS_PRG) $(ML_PRG) $(LOADER_PRG) $(BJR_PRG)
 .PHONY: all clean
 
 $(BAS_PRG): $(BAS_SRC)
@@ -39,8 +42,12 @@ $(ML_PRG): $(ML_CONFIG) $(ML_OBJECTS)
 $(LOADER_PRG): $(ML_CONFIG) $(LOADER_OBJECTS)
 	$(LD) $(LDFLAGS) -o $@ -S $(LOADER_START_ADDR) $(LOADER_OBJECTS)
 
+$(BJR_PRG): $(ML_CONFIG) $(BJR_OBJECTS)
+	$(LD) $(LDFLAGS) -o "$@" -S $(BJR_START_ADDR) $(BJR_OBJECTS)
+
 clean:
 	$(RM) $(ML_OBJECTS) $(ML_PRG)
 	$(RM) $(LOADER_OBJECTS) $(LOADER_PRG)
+	$(RM) $(BJR_OBJECTS) $(BJR_PRG)
 	$(RM) $(BAS_PRG)
 	$(RM) *~
