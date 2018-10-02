@@ -8,7 +8,7 @@ BAS_SRC = main.bas
 ML_CONFIG := ml.cfg
 ML_PRG := ml.prg
 ML_OBJECTS := ml.o
-ML_START_ADDR := 8192
+ML_START_ADDR := 9216
 
 LOADER_PRG = loader
 LOADER_OBJECTS := loader.o
@@ -33,7 +33,7 @@ LDFLAGS = -C $(ML_CONFIG)
 
 
 all: $(BAS_PRG) $(ML_PRG) $(LOADER_PRG) $(BJR_PRG)
-.PHONY: all clean
+.PHONY: all image clean
 
 $(BAS_PRG): $(BAS_SRC)
 	$(PETCAT) $(PETCAT_FLAGS) $(BAS_SRC) > $@
@@ -47,7 +47,7 @@ $(LOADER_PRG): $(ML_CONFIG) $(LOADER_OBJECTS)
 $(BJR_PRG): $(ML_CONFIG) $(BJR_OBJECTS)
 	$(LD) $(LDFLAGS) -o "$@" -S $(BJR_START_ADDR) $(BJR_OBJECTS)
 
-image: $(ALL)
+image: all
 	c1541 -format bjr-2018,os d64 $(IMAGE)
 	c1541 $(IMAGE) -write $(BJR_PRG)
 	c1541 $(IMAGE) -write $(LOADER_PRG)
@@ -55,6 +55,9 @@ image: $(ALL)
 	c1541 $(IMAGE) -write $(ML_PRG)
 	c1541 $(IMAGE) -write chr.bin
 	c1541 $(IMAGE) -write $(BAS_PRG)
+
+testimage: image
+	xvic -memory 8k -autostart $(IMAGE)
 
 clean:
 	$(RM) $(ML_OBJECTS) $(ML_PRG)

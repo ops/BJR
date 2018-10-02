@@ -4,7 +4,6 @@
 ;;; 1985,2018 ops
 ;;;
 
-L010E           := $010E
 MAIN2           := $C483
 
 PTR1 = $FB
@@ -40,22 +39,9 @@ VICCRF := VIC+$F
 
         lda     #$0A
         sta     CHARCOLOR
-	lda     #$1E
-	sta     $0288
+	lda     #$1E		; set screen memory
+	sta     $0288		; start to $1E00
         jsr     CLRSCR
-
-	ldx     #$1E		; start of screen mem
-	jsr     fill_chars
-
-	lda     #$00
-	ldx     #$0e
-	ldy     #$10
-	jsr     fill_pages
-
-        lda     #$0A
-	ldx     #$02
-        ldy     #$96
-	jsr     fill_pages
 
         lda     #$0C
         sta     VICCR0
@@ -72,6 +58,20 @@ VICCRF := VIC+$F
         lda     #$E8
         sta     VICCRF
 
+	lda     #$00
+	ldx     #$0e
+	ldy     #$10
+	jsr     fill_pages
+
+        lda     #$0A
+	ldx     #$02
+        ldy     #$96
+	jsr     fill_pages
+
+	ldx     #$1E		; start of screen mem
+	jsr     fill_chars
+
+	; load loading picture
         lda     #$01
         ldx     $BA
         ldy     #$FF
@@ -83,26 +83,43 @@ VICCRF := VIC+$F
         lda     #$00
 	jsr     LOAD
 
-	rts
-
+	; load ML routines
         lda     #$01
-        ldx     #$01
+        ldx     $BA
         ldy     #$FF
         jsr     SETLFS
-        lda     #$00
+        lda     #ml_end-ml
+	ldx     #<ml
+	ldy     #>ml
         jsr     SETNAM
+        lda     #$00
+	jsr     LOAD
 
-        ldx     #$3C
-L049B:  lda     L04AF,x
-        sta     $010D,x
-        dex
-        bne     L049B
-        jmp     L010E
+	; load character data
+        lda     #$01
+        ldx     $BA
+        ldy     #$00
+        jsr     SETLFS
+        lda     #ml_end-ml
+	ldx     #<ml
+	ldy     #>ml
+        jsr     SETNAM
+        lda     #$00
+	ldx     #<($3c00)
+	ldy     #>($3c00)
+	jsr     LOAD
 
-L04AF:  lda     #$00
-        ldx     #$FF
+	; load main program
+        lda     #$01
+        ldx     $BA
         ldy     #$FF
-        jsr     LOAD
+        jsr     SETLFS
+        lda     #main_end-main
+	ldx     #<main
+	ldy     #>main
+        jsr     SETNAM
+        lda     #$00
+	jsr     LOAD
 
         lda     $033D
         sta     $2B
@@ -165,3 +182,12 @@ L04AF:  lda     #$00
 
 pic:	.byte "picture.bin"
 pic_end:
+
+ml:	.byte "ml.prg"
+ml_end:
+
+chr:	.byte "chr.bin"
+chr_end:
+
+main:	.byte "main.prg"
+main_end:
