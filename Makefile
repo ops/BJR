@@ -14,9 +14,11 @@ LOADER_PRG = loader
 LOADER_OBJECTS := loader.o
 LOADER_START_ADDR := 8192
 
-BJR_PRG = bj\ revisited
+BJR_PRG = bjr-2018
 BJR_OBJECTS := bjr.o
 BJR_START_ADDR := 4609
+
+IMAGE := bjr-2018.d64
 
 AS := ca65
 LD := ld65
@@ -36,7 +38,7 @@ all: $(BAS_PRG) $(ML_PRG) $(LOADER_PRG) $(BJR_PRG)
 $(BAS_PRG): $(BAS_SRC)
 	$(PETCAT) $(PETCAT_FLAGS) $(BAS_SRC) > $@
 
-$(ML_PRG): $(ML_CONFIG) $(ML_OBJECTS)
+$(ML_PRG) : $(ML_CONFIG) $(ML_OBJECTS)
 	$(LD) $(LDFLAGS) -o $@ -S $(ML_START_ADDR) $(ML_OBJECTS)
 
 $(LOADER_PRG): $(ML_CONFIG) $(LOADER_OBJECTS)
@@ -45,9 +47,19 @@ $(LOADER_PRG): $(ML_CONFIG) $(LOADER_OBJECTS)
 $(BJR_PRG): $(ML_CONFIG) $(BJR_OBJECTS)
 	$(LD) $(LDFLAGS) -o "$@" -S $(BJR_START_ADDR) $(BJR_OBJECTS)
 
+image: $(ALL)
+	c1541 -format bjr-2018,os d64 $(IMAGE)
+	c1541 $(IMAGE) -write $(BJR_PRG)
+	c1541 $(IMAGE) -write $(LOADER_PRG)
+	c1541 $(IMAGE) -write picture.bin
+	c1541 $(IMAGE) -write $(ML_PRG)
+	c1541 $(IMAGE) -write chr.bin
+	c1541 $(IMAGE) -write $(BAS_PRG)
+
 clean:
 	$(RM) $(ML_OBJECTS) $(ML_PRG)
 	$(RM) $(LOADER_OBJECTS) $(LOADER_PRG)
 	$(RM) $(BJR_OBJECTS) $(BJR_PRG)
 	$(RM) $(BAS_PRG)
+	$(RM) $(IMAGE)
 	$(RM) *~
