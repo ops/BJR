@@ -41,7 +41,7 @@
   450 fori=20toa-4:print"{home}{wht}"mid$(a$,i,26):gosub870:next
   460 print"{home}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}"el
   470 print"{wht}"
-  471 poke251,0:poke252,16:poke253,0:poke254,148:sys(ml+6)
+  471 poke251,0:poke252,28:poke253,0:poke254,148:sys(ml+6)
   472 gosub150:sys(ml+15)
   480 c=0:hp=sc+778:goto290
   490 sys(ml+24):poke36874,0:poke36877,0:gosub1060:ifr<0thengosub880:goto510
@@ -57,7 +57,7 @@
   580 a$=a$+"press f3 to quit the game.   "
   590 a$=a$+"bomb jack was programmed by "
   600 a$=a$+"ops in 1985. thanks to s.l. for the loading picture "
-  610 gosub1080:poke36892,255
+  610 gosub1080
   620 sys(ml+18):poke0,0:sys(ml+33):sys(ml+15):sys(ml+24)
   630 pokepeek(833)*256+peek(832),32:poke36877,0:print"{home}                          "
   640 pokehp,32:a=len(a$)
@@ -67,7 +67,7 @@
   680 ifpeek(197)=47thensys64802
   690 next:goto650
 
-  700 sys(ml+18):fori=0to3:poke36874+i,0:next:sys(ml+21):poke36892,1
+  700 sys(ml+18):fori=0to3:poke36874+i,0:next:sys(ml+21)
   710 print"    press play on tape{down}              and then fire!"
   720 if(peek(37137)and32)=32then720
   730 sys(ml+21):el=8:a$="":i=fre(0):goto400
@@ -81,9 +81,9 @@
   800 sys(ml+15):goto300
 
   810 clr:gosub930
-  815 ml=8192:sc=4096
-  820 poke648,16:sys(ml+21):t=60:el=8:hp=sc+778
-  825 poke36869,205
+  815 ml=9216:sc=7168
+  820 poke648,28:sys(ml+21):t=60:el=8:hp=sc+778
+  825 poke36869,254
   830 sys(ml+33)
   840 poke36864,8:poke36865,27:poke36866,26:poke36867,62
   845 poke36878,15
@@ -104,7 +104,6 @@
   950 print"  counter to  '000'":printchr$(13)
   960 print"    and press FIRE"
   970 if(peek(37137)and32)=32then970
-  980 rem poke36892,1
   990 print"{clr}{wht}":poke36879,8:return
 
  1000 poke822,0:poke36874,0:poke36877,0:ifpeek(36875)=0then1020
@@ -130,4 +129,4 @@
  1136 next
  1140 poke36874,0:print"{wht}":return
 
- 1150 data53,16,76,16,243,18,10,19
+ 1150 data53,28,76,28,243,30,10,31

@@ -8,7 +8,7 @@ VICCRC  := VIC+$0C
 VICCRE  := VIC+$0E
 LEABF   := $EABF
 
-SCREEN_MEM := $1000
+SCREEN_MEM := $1c00
 COLOR_MEM := $9400
 
         .setcpu "6502"
