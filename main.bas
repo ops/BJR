@@ -37,7 +37,7 @@
   410 a$="                         loading...            time: 60  bombs: 0  men:   "
   420 sys(ml+18):fori=0to3:poke36874+i,0:next
   430 a=len(a$)-22:fori=1to20:print"{wht}{home}  "mid$(a$,i,22):gosub870:next
-  440 poke157,0:poke831,(rnd(0)*6)+2:poke646,peek(831):sys(ml+3):sys(ml+9):gosub920:poke36892,1
+  440 poke157,0:poke831,(rnd(0)*6)+2:poke646,peek(831):sys(ml+3):sys(ml+9):gosub920
   450 fori=20toa-4:print"{home}{wht}"mid$(a$,i,26):gosub870:next
   460 print"{home}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}"el
   470 print"{wht}"
@@ -80,9 +80,9 @@
   790 ti$=b$:print"{home}time:"int(t=ti/60)"  bombs:"c" men:"el
   800 sys(ml+15):goto300
 
-  810 clr:gosub930
+  810 poke648,28:clr:gosub930
   815 ml=9216:sc=7168
-  820 poke648,28:sys(ml+21):t=60:el=8:hp=sc+778
+  820 sys(ml+21):t=60:el=8:hp=sc+778
   825 poke36869,254
   830 sys(ml+33)
   840 poke36864,8:poke36865,27:poke36866,26:poke36867,62
@@ -99,7 +99,7 @@
 
   920 restore:fori=0to7:readaa:poke832+i,aa:next:aa=0:return:fori=0to7:readaa:poke832+i,aa:next:aa=0:return
 
-  930 print"{clr}{blk}":poke36879,154:poke36869,194:printchr$(8)
+  930 print"{clr}{blk}":poke36879,154:poke36866,22:poke36867,46:poke36869,242:printchr$(8)
   940 printtab(178)"Please reset tape":printchr$(13)
   950 print"  counter to  '000'":printchr$(13)
   960 print"    and press FIRE"

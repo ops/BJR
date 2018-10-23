@@ -22,18 +22,18 @@ COLOR_MEM := $9400
 
         .segment "CODE"
 
-	jmp L0134 ; 00 inc haamu 308
-	jmp L0142 ; 03 set color mem 322
-	jmp L015D ; 06 349
-	jmp L0177 ; 09 375
-	jmp L018E ; 12 398
-	jmp L17CD ; 15 6093
-	jmp L17DA ; 18 6106
-	jmp L02D5 ; 21 725
-	jmp set_irq2 ; 24
-	jmp set_tune1 ; 27
-	jmp set_tune2 ; 30
-	jmp set_tune3 ; 33
+        jmp L0134               ; 00
+        jmp L0142               ; 03
+        jmp L015D               ; 06
+        jmp L0177               ; 09
+        jmp L018E               ; 12
+        jmp L17CD               ; 15
+        jmp L17DA               ; 18
+        jmp L02D5               ; 21
+        jmp set_irq2            ; 24
+        jmp set_tune1           ; 27
+        jmp set_tune2           ; 30
+        jmp set_tune3           ; 33
 
 L0142:  lda     #<(COLOR_MEM+$001A)
         sta     $FB
@@ -65,13 +65,13 @@ L0169:  iny
         bne     L015D
         rts
 
-L0177:	lda     #$01
+L0177:  lda     #$01
         ldx     $ba
         ldy     #$00
         jsr     SETLFS
         lda     #(NAME_END-NAME)
-	ldx     #<NAME
-	ldy     #>NAME
+        ldx     #<NAME
+        ldy     #>NAME
         jsr     SETNAM
         lda     #$00
         ldx     #<(SCREEN_MEM+26)
@@ -79,10 +79,10 @@ L0177:	lda     #$01
         jsr     LOAD
         rts
 
-NAME:	.byte "map01.bin"
+NAME:   .byte "map01.bin"
 NAME_END:
 
-L02D5:	jsr     CLRSCR
+L02D5:  jsr     CLRSCR
         lda     #$00
         sta     $FB
         lda     #>SCREEN_MEM
@@ -114,7 +114,7 @@ L17CD:  sei
         rts
 
 set_irq2:
-	sei
+        sei
         lda     #<irq2
         sta     IRQVec
         lda     #>irq2
@@ -122,7 +122,7 @@ set_irq2:
         cli
         rts
 
-L17DA:	sei
+L17DA:  sei
         lda     #$BF
         sta     IRQVec
         lda     #$EA
@@ -140,7 +140,7 @@ L17F4:  stx     $0336
         jsr     play_music
         jmp     LEABF
 
-irq2:	jsr     play_music
+irq2:   jsr     play_music
         jmp     LEABF
 
 L1A00:  ldy     #$00
@@ -199,7 +199,7 @@ L1A45:  clc
         sta     $FE
         rts
 
-L018E:	sei
+L018E:  sei
         jsr     L1A53
         cli
         rts
@@ -354,7 +354,7 @@ L1B53:  lda     $FD
         lda     $FE
         sta     $FC
 L1B5B:  ldy     #$00
-L1B5D:	lda     #$6F
+L1B5D:  lda     #$6F
         sta     ($FB),y
         lda     $FB
         sta     $0340
@@ -366,7 +366,7 @@ L1B5D:	lda     #$6F
         sta     VIA2_DDRB
         rts
 
-L0134:	ldy     L1B5D+1
+L0134:  ldy     L1B5D+1
         iny
         cpy     #$73
         bne     L013E
@@ -375,55 +375,55 @@ L013E:  sty     L1B5D+1
         rts
 
 play_music:
-	ldy     $0000
-	beq     @next
-	cpy     #$FF
-	beq     @skip
-	dey
-	sty     $0000
-	rts
+        ldy     $00
+        beq     @next
+        cpy     #$FF
+        beq     @skip
+        dey
+        sty     $00
+        rts
 @next:  lda     ($01),y
         sta     VICCRC
         sta     VICCRB
-	iny
+        iny
         lda     ($01),y
-        sta     $0000
-	clc
-	lda     $01
-	adc     #$02
-	sta     $01
-	bcc     @skip
-	inc     $02
+        sta     $00
+        clc
+        lda     $01
+        adc     #$02
+        sta     $01
+        bcc     @skip
+        inc     $02
 @skip:  rts
 
 set_tune1:
-	lda     #<tune1
-	sta     $01
-	lda     #>tune1
-	sta     $02
-	lda     #$00
-	sta     $0000
-	rts
+        lda     #<tune1
+        sta     $01
+        lda     #>tune1
+        sta     $02
+        lda     #$00
+        sta     $00
+        rts
 
 set_tune2:
-	lda     #<tune2
-	sta     $01
-	lda     #>tune2
-	sta     $02
-	lda     #$00
-	sta     $0000
-	rts
+        lda     #<tune2
+        sta     $01
+        lda     #>tune2
+        sta     $02
+        lda     #$00
+        sta     $00
+        rts
 
 set_tune3:
-	lda     #<tune3
-	sta     $01
-	lda     #>tune3
-	sta     $02
-	lda     #$00
-	sta     $0000
-	rts
+        lda     #<tune3
+        sta     $01
+        lda     #>tune3
+        sta     $02
+        lda     #$00
+        sta     $00
+        rts
 
-tune1:	.byte   $C1,$0A,$00,$01,$C1,$0A
+tune1:  .byte   $C1,$0A,$00,$01,$C1,$0A
         .byte   $C8,$0A,$CB,$0A,$00,$01,$CB,$0A
         .byte   $00,$01,$CB,$0A,$C8,$0A,$C1,$0A
         .byte   $00,$01,$C1,$0A,$00,$01,$C1,$0A
@@ -452,7 +452,7 @@ tune1:	.byte   $C1,$0A,$00,$01,$C1,$0A
         .byte   $BD,$0A,$C1,$14,$00,$01,$C1,$14
         .byte   $00,$01,$01,$ff
 
-tune2:	.byte   $BD,$0A,$00,$01,$BD,$0A
+tune2:  .byte   $BD,$0A,$00,$01,$BD,$0A
         .byte   $C1,$0A,$C8,$0A,$CB,$14,$C8,$14
         .byte   $BD,$0A,$00,$01,$BD,$0A,$C1,$0A
         .byte   $C8,$0A,$D1,$14,$C8,$14,$BD,$0A
@@ -462,7 +462,7 @@ tune2:	.byte   $BD,$0A,$00,$01,$BD,$0A
         .byte   $B5,$0A,$00,$01,$B5,$0A,$AC,$14
         .byte   $00,$01,$01,$ff
 
-tune3:	.byte   $BD,$0A,$00,$01,$BD,$0A
+tune3:  .byte   $BD,$0A,$00,$01,$BD,$0A
         .byte   $C1,$0A,$C8,$0A,$00,$01,$C8,$0F
         .byte   $C1,$05,$BD,$0A,$B5,$0A,$AC,$0A
         .byte   $00,$01,$AC,$0A,$B5,$0A,$BD,$0A

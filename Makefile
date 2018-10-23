@@ -23,7 +23,7 @@ IMAGE := bjr-2018.d64
 AS := ca65
 LD := ld65
 PETCAT := petcat
-PETCAT_FLAGS = -w2 -l 3001
+PETCAT_FLAGS = -w2 -l 2c01
 
 # Additional assembler flags and options.
 ASFLAGS += -t vic20
@@ -55,6 +55,14 @@ image: all
 	c1541 $(IMAGE) -write $(ML_PRG)
 	c1541 $(IMAGE) -write chr.bin
 	c1541 $(IMAGE) -write $(BAS_PRG)
+	c1541 $(IMAGE) -write map01.bin
+	c1541 $(IMAGE) -write map02.bin
+	c1541 $(IMAGE) -write map03.bin
+	c1541 $(IMAGE) -write map04.bin
+	c1541 $(IMAGE) -write map05.bin
+	c1541 $(IMAGE) -write map06.bin
+	c1541 $(IMAGE) -write map07.bin
+	c1541 $(IMAGE) -write map08.bin
 
 testimage: image
 	xvic -memory 8k -autostart $(IMAGE)
