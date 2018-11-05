@@ -6,7 +6,7 @@
   140 poke144,0:sys(ml+15):goto370
 
   150 w=int(rnd(0)*726)+sc+52:ifpeek(w)<>32then150
-  160 print"{home}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}bombs:"c"{left} ":pokew,116:return
+  160 print"{home}{10 rght}bombs:"c"{left} ":pokew,116:return
 
   170 ha=(hp-sc-1)/26-int((hp-sc-1)/26):pp=peek(832)+256*peek(833)
   180 rd=rnd(0):pa=(pp-sc-1)/26-int((pp-sc-1)/26)
@@ -39,7 +39,7 @@
   430 a=len(a$)-22:fori=1to20:print"{wht}{home}  "mid$(a$,i,22):gosub870:next
   440 poke157,0:poke831,(rnd(0)*6)+2:poke646,peek(831):sys(ml+3):sys(ml+9):gosub920
   450 fori=20toa-4:print"{home}{wht}"mid$(a$,i,26):gosub870:next
-  460 print"{home}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}{rght}"el
+  460 print"{home}{24 rght}"el
   470 print"{wht}"
   471 poke251,0:poke252,28:poke253,0:poke254,148:sys(ml+6)
   472 gosub150:sys(ml+15)
@@ -62,9 +62,9 @@
   630 pokepeek(833)*256+peek(832),32:poke36877,0:print"{home}                          "
   640 pokehp,32:a=len(a$)
   650 fori=1toa:print"{home}  "mid$(a$,i,22):sys(ml+12):pokew,116
-  660 fort=0to60:next
-  670 ifpeek(197)=39then700
-  680 ifpeek(197)=47thensys64802
+  660   fort=0to60:next
+  670   ifpeek(197)=39then700
+  680   ifpeek(197)=47thensys64802
   690 next:goto650
 
   700 sys(ml+18):fori=0to3:poke36874+i,0:next:sys(ml+21)
@@ -92,12 +92,12 @@
 
   870 poke36878,15:forii=0to7:poke36874,ii+128:next:poke36874,0:return
 
-  880 poke36879,24:sys(ml+18):fori=0to3:poke36874+i,0:next
-  890 poke36878,15:fori=0to3:poke36874+i,0:next:poke36877,140:poke36879,8:poke36874,128
+  880 poke36879,24:sys(ml+18):gosub1145
+  890 poke36878,15:gosub1145:poke36877,140:poke36879,8:poke36874,128
   900 fori=15to0step-.05
   910 poke36878,i:next::poke36877,0:poke36874,0:poke36878,15:return
 
-  920 restore:fori=0to7:readaa:poke832+i,aa:next:aa=0:return:fori=0to7:readaa:poke832+i,aa:next:aa=0:return
+  920 restore:fori=0to7:readaa:poke832+i,aa:next:aa=0:return
 
   930 print"{clr}{blk}":poke36879,154:poke36866,22:poke36867,46:poke36869,242:printchr$(8)
   940 printtab(178)"Please reset tape":printchr$(13)
@@ -108,16 +108,17 @@
 
  1000 poke822,0:poke36874,0:poke36877,0:ifpeek(36875)=0then1020
  1010 ifpeek(36875)<>1then1010
- 1020 sys(ml+18):sys(ml+21):fori=0to400:next:poke36874,0:poke36875,0:poke36876,0
+ 1020 sys(ml+18):sys(ml+21):fori=0to400:next:gosub1145
  1030 sys(ml+30):poke822,0:sys(ml+15):sys(ml+24)
  1040 ifpeek(36875)<>1then1040
  1050 sys(ml+18):sys(ml+33):return
 
+; Clear ghosts, bomb, player
  1060 pokefnn(832),32:pokefnn(834),32:pokefnn(836),32:pokefnn(838),32:pokew,32:pokehp,32
  1070 return
 
- 1080 fori=0to3:poke36874+i,0:next
- 1182 print"{home}                          "
+ 1080 gosub1145
+ 1082 print"{home}                          "
  1090 c$="{home}        game over"
  1092 poke36878,15:fori=1to300:next
  1100 fori=15to0step-.5
@@ -128,5 +129,8 @@
  1134 poke36878,i
  1136 next
  1140 poke36874,0:print"{wht}":return
+
+; Silence sounds
+ 1145 fori=0to3:poke36874+i,0:next:return
 
  1150 data53,28,76,28,243,30,10,31

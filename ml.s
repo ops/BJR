@@ -11,6 +11,8 @@ LEABF   := $EABF
 SCREEN_MEM := $1c00
 COLOR_MEM := $9400
 
+GHOST_NUM := $0336
+
         .setcpu "6502"
 
         .include "cbm_kernal.inc"
@@ -22,20 +24,21 @@ COLOR_MEM := $9400
 
         .segment "CODE"
 
-        jmp L0134               ; 00
-        jmp L0142               ; 03
-        jmp L015D               ; 06
-        jmp L0177               ; 09
-        jmp L018E               ; 12
-        jmp L17CD               ; 15
-        jmp L17DA               ; 18
-        jmp L02D5               ; 21
+        jmp next_player_char    ; 00
+        jmp fill_cmem           ; 03
+        jmp fill_empty          ; 06
+        jmp load_map            ; 09
+        jmp move_ghost          ; 12
+        jmp start_irq           ; 15
+        jmp reset_irq           ; 18
+        jmp clear_screen        ; 21
         jmp set_irq2            ; 24
         jmp set_tune1           ; 27
         jmp set_tune2           ; 30
         jmp set_tune3           ; 33
 
-L0142:  lda     #<(COLOR_MEM+$001A)
+fill_cmem:
+        lda     #<(COLOR_MEM+$001A)
         sta     $FB
         lda     #>(COLOR_MEM+$001A)
         sta     $FC
@@ -50,7 +53,7 @@ L014F:  sta     ($FB),y
         bne     L014A
         rts
 
-L015D:  ldy     #$00
+fill_empty:  ldy     #$00
 L015F:  lda     #$20
         cmp     ($FB),y
         bne     L0169
@@ -62,10 +65,10 @@ L0169:  iny
         inc     $FE
         lda     #>(SCREEN_MEM+$0400)
         cmp     $FC
-        bne     L015D
+        bne     fill_empty
         rts
 
-L0177:  lda     #$01
+load_map:  lda     #$01
         ldx     $ba
         ldy     #$00
         jsr     SETLFS
@@ -82,7 +85,7 @@ L0177:  lda     #$01
 NAME:   .byte "map01.bin"
 NAME_END:
 
-L02D5:  jsr     CLRSCR
+clear_screen:  jsr     CLRSCR
         lda     #$00
         sta     $FB
         lda     #>SCREEN_MEM
@@ -105,7 +108,7 @@ L02EA:  lda     #$20
         bne     L02E8
         rts
 
-L17CD:  sei
+start_irq:  sei
         lda     #<L17E7
         sta     IRQVec
         lda     #>L17E7
@@ -122,7 +125,8 @@ set_irq2:
         cli
         rts
 
-L17DA:  sei
+reset_irq:
+        sei
         lda     #$BF
         sta     IRQVec
         lda     #$EA
@@ -130,13 +134,13 @@ L17DA:  sei
         cli
         rts
 
-L17E7:  ldx     $0336
+L17E7:  ldx     GHOST_NUM
         inx
         cpx     #$04
         bne     L17F4
         jsr     L1B15
         ldx     #$00
-L17F4:  stx     $0336
+L17F4:  stx     GHOST_NUM
         jsr     play_music
         jmp     LEABF
 
@@ -199,7 +203,7 @@ L1A45:  clc
         sta     $FE
         rts
 
-L018E:  sei
+move_ghost:  sei
         jsr     L1A53
         cli
         rts
@@ -366,7 +370,7 @@ L1B5D:  lda     #$6F
         sta     VIA2_DDRB
         rts
 
-L0134:  ldy     L1B5D+1
+next_player_char:  ldy     L1B5D+1
         iny
         cpy     #$73
         bne     L013E
