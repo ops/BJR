@@ -35,7 +35,7 @@
 
   400 gosub1060:gosub1000
   410 a$="                         loading...            time: 60  bombs: 0  men:   "
-  420 sys(ml+18):fori=0to3:poke36874+i,0:next
+  420 sys(ml+18):gosub1145
   430 a=len(a$)-22:fori=1to20:print"{wht}{home}  "mid$(a$,i,22):gosub870:next
   440 poke157,0:poke831,(rnd(0)*6)+2:poke646,peek(831):sys(ml+3):sys(ml+9):gosub920
   450 fori=20toa-4:print"{home}{wht}"mid$(a$,i,26):gosub870:next
@@ -67,13 +67,13 @@
   680   ifpeek(197)=47thensys64802
   690 next:goto650
 
-  700 sys(ml+18):fori=0to3:poke36874+i,0:next:sys(ml+21)
+  700 sys(ml+18):gosub1145:sys(ml+21)
   710 print"    press play on tape{down}              and then fire!"
   720 if(peek(37137)and32)=32then720
   730 sys(ml+21):el=8:a$="":i=fre(0):goto400
 
   740 a$="                      pause mode...         "
-  750 sys(ml+18):fori=0to3:poke36874+i,0:next:print"{home}                          "
+  750 sys(ml+18):gosub1145:print"{home}                          "
   760 a=len(a$):fori=1to18:print"{home}  "mid$(a$,i,22):gosub870:next
   770 if(peek(37137)and32)=32then770
   780 fori=18to37:print"{home}  "mid$(a$,i,22):gosub870:next:print"{home}
