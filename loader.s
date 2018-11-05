@@ -158,9 +158,9 @@ NEWSTT := $C7AE
         ldx     #$00
         stx     PTR1
         clc
-@loop1:         txa
+@loop1: txa
         ldy     #$00
-@loop2:         sta     (PTR1),y
+@loop2: sta     (PTR1),y
         adc     #10
         iny
         cpy     #22
