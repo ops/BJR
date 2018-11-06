@@ -28,6 +28,9 @@ LNKPRG := $C533
 STXTPT := $C68E
 NEWSTT := $C7AE
 
+COLUMNS = 22
+ROWS    = 10
+
         .setcpu "6502"
 
         .include "cbm_kernal.inc"
@@ -49,9 +52,9 @@ NEWSTT := $C7AE
         sta     VICCR0
         lda     #$2B
         sta     VICCR1
-        lda     #$80+22
+        lda     #$80+COLUMNS
         sta     VICCR2
-        lda     #$15 ;;(20<<1) | $01
+        lda     #(ROWS << 1) | $01
         sta     VICCR3
         lda     #$FC
         sta     VICCR5

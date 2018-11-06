@@ -11,7 +11,7 @@ LEABF   := $EABF
 SCREEN_MEM := $1c00
 COLOR_MEM := $9400
 
-GHOST_NUM := $0336
+GHOST_DELAY := $0336
 
         .setcpu "6502"
 
@@ -42,33 +42,35 @@ fill_cmem:
         sta     $FB
         lda     #>(COLOR_MEM+$001A)
         sta     $FC
-L014A:  ldy     #$00
+        ldy     #$00
         lda     $033F
-L014F:  sta     ($FB),y
+@loop:  sta     ($FB),y
         iny
-        bne     L014F
+        bne     @loop
         inc     $FC
-        lda     #>(COLOR_MEM+$0400)
-        cmp     $FC
-        bne     L014A
+        ldx     #>(COLOR_MEM+$0400)
+        cpx     $FC
+        bne     @loop
         rts
 
-fill_empty:  ldy     #$00
-L015F:  lda     #$20
+fill_empty:
+        ldy     #$00
+@loop:  lda     #$20
         cmp     ($FB),y
-        bne     L0169
+        bne     @skip
         lda     #$01
         sta     ($FD),y
-L0169:  iny
-        bne     L015F
+@skip:  iny
+        bne     @loop
         inc     $FC
         inc     $FE
         lda     #>(SCREEN_MEM+$0400)
         cmp     $FC
-        bne     fill_empty
+        bne     @loop
         rts
 
-load_map:  lda     #$01
+load_map:
+        lda     #$01
         ldx     $ba
         ldy     #$00
         jsr     SETLFS
@@ -85,33 +87,33 @@ load_map:  lda     #$01
 NAME:   .byte "map01.bin"
 NAME_END:
 
-clear_screen:  jsr     CLRSCR
-        lda     #$00
-        sta     $FB
+clear_screen:
+        jsr     CLRSCR
+        ldy     #$00
+        sty     $FB
+        sty     $FD
         lda     #>SCREEN_MEM
         sta     $FC
-        lda     #$00
-        sta     $FD
         lda     #>COLOR_MEM
         sta     $FE
-L02E8:  ldy     #$00
-L02EA:  lda     #$20
+@loop:  lda     #$20
         sta     ($FB),y
         lda     #$01
         sta     ($FD),y
         iny
-        bne     L02EA
+        bne     @loop
         inc     $FC
         inc     $FE
         lda     #>(SCREEN_MEM + $0400)
         cmp     $FC
-        bne     L02E8
+        bne     @loop
         rts
 
-start_irq:  sei
-        lda     #<L17E7
+start_irq:
+        sei
+        lda     #<my_irq
         sta     IRQVec
-        lda     #>L17E7
+        lda     #>my_irq
         sta     IRQVec+1
         cli
         rts
@@ -134,13 +136,14 @@ reset_irq:
         cli
         rts
 
-L17E7:  ldx     GHOST_NUM
+my_irq:
+        ldx     GHOST_DELAY
         inx
         cpx     #$04
         bne     L17F4
         jsr     L1B15
         ldx     #$00
-L17F4:  stx     GHOST_NUM
+L17F4:  stx     GHOST_DELAY
         jsr     play_music
         jmp     LEABF
 
@@ -150,7 +153,8 @@ irq2:   jsr     play_music
 L1A00:  ldy     #$00
         lda     #$20
         sta     ($FB),y
-        jsr     L1A99
+        lda     $9119
+        adc     $9128
         lsr     a
         lsr     a
         lsr     a
@@ -203,11 +207,8 @@ L1A45:  clc
         sta     $FE
         rts
 
-move_ghost:  sei
-        jsr     L1A53
-        cli
-        rts
-
+move_ghost:
+        sei
 L1A53:  ldx     $0334
         lda     $0342,x
         sta     $FB
@@ -237,7 +238,6 @@ L0113:  lda     #$74
         cmp     ($FD),y
         beq     L0110
         jmp     L1A79
-
 L1A71:  lda     $FD
         sta     $FB
         lda     $FE
@@ -257,22 +257,19 @@ L1A79:  lda     #$73
         bne     L1AA0
         ldx     #$00
         stx     $0334
+        cli
         rts
-
-L1A99:  lda     $9119
-        adc     $9128
-        rts
-
 L1AA0:  stx     $0334
         jmp     L1A53
 
-L1AA6:  ldy     #$00
+read_joy:
+        ldy     #$00
         sty     VIA1_DDRA
         lda     #$7F
         sta     VIA2_DDRB
         lda     #$20
         sta     ($FB),y
-        lda     VIA2_JOY
+        lda     VIA2_PB
         and     #$80
         beq     L1B05
         lda     #$FF
@@ -299,7 +296,7 @@ L1ADB:  sec
 
 L1AE9:  clc
         lda     $FB
-        adc     #$1A ;; xsize
+        adc     #MAP_X_SIZE
         sta     $FD
         lda     $FC
         adc     #$00
@@ -338,7 +335,7 @@ L1B15:  lda     $0340
         sta     $90
         jmp     L1B5B
 
-L1B34:  jsr     L1AA6
+L1B34:  jsr     read_joy
         ldy     #$00
         lda     #$20
         cmp     ($FD),y
@@ -370,7 +367,8 @@ L1B5D:  lda     #$6F
         sta     VIA2_DDRB
         rts
 
-next_player_char:  ldy     L1B5D+1
+next_player_char:
+        ldy     L1B5D+1
         iny
         cpy     #$73
         bne     L013E

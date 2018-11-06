@@ -97,7 +97,7 @@
 950 fori=15to0step-.05
 960 poke36878,i:next::poke36877,0:poke36874,0:poke36878,15:return
 
-970 restore70:fori=0to7:readaa:poke832+i,aa:next:aa=0:return
+970 restore:fori=0to7:readaa:poke832+i,aa:next:aa=0:return
 
 980 print"{clr}{blk}":poke36879,154:poke36866,22:poke36867,46:poke36869,242:printchr$(8)
 990 printtab(178)"Please reset tape":printchr$(13)
