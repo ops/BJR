@@ -150,24 +150,41 @@ L17F4:  stx     GHOST_DELAY
 irq2:   jsr     play_music
         jmp     LEABF
 
-L1A00:  ldy     #$00
+read_joy:
+        ldy     #$00
+        sty     VIA1_DDRA
+        lda     #$7F
+        sta     VIA2_DDRB
         lda     #$20
         sta     ($FB),y
+        lda     VIA2_PB
+        and     #$80
+        beq     pos_right
+        lda     #$FF
+        sta     VIA2_DDRB
+        lda     VIA1_PA2
+        and     #$04
+        beq     pos_up
+        lda     VIA1_PA2
+        and     #$08
+        beq     pos_down
+        lda     VIA1_PA2
+        and     #$10
+        beq     pos_left
+        rts
+
+get_new_pos:
         lda     $9119
         adc     $9128
-        lsr     a
-        lsr     a
-        lsr     a
-        lsr     a
-        lsr     a
-        lsr     a
+        and     #$03
         cmp     #$00
-        beq     L1A29
+        beq     pos_right
         cmp     #$01
-        beq     L1A37
+        beq     pos_left
         cmp     #$02
-        beq     L1A45
+        beq     pos_down
         ; Move up
+pos_up:
         sec
         lda     $FB
         sbc     #MAP_X_SIZE
@@ -176,9 +193,9 @@ L1A00:  ldy     #$00
         sbc     #$00
         sta     $FE
         rts
-
         ; Move right
-L1A29:  clc
+pos_right:
+        clc
         lda     $FB
         adc     #$01
         sta     $FD
@@ -186,9 +203,9 @@ L1A29:  clc
         adc     #$00
         sta     $FE
         rts
-
         ; Move left
-L1A37:  sec
+pos_left:
+        sec
         lda     $FB
         sbc     #$01
         sta     $FD
@@ -196,9 +213,9 @@ L1A37:  sec
         sbc     #$00
         sta     $FE
         rts
-
         ; Move down
-L1A45:  clc
+pos_down:
+        clc
         lda     $FB
         adc     #MAP_X_SIZE
         sta     $FD
@@ -216,29 +233,31 @@ L1A53:  ldx     $0334
         lda     $0342,x
         sta     $FC
         stx     $0334
-        jsr     L1A00
+        jsr     get_new_pos
         ldy     #$00
         lda     #$20
+        sta     ($FB),y
         cmp     ($FD),y
-L010E:  bne     L0113
-L0110:  jmp     L1A71
+L010E:  beq     store_pos
 L0113:  lda     #$74
         cmp     ($FD),y
-        beq     L0110
+        beq     store_pos
         lda     #$6F
         cmp     ($FD),y
-        beq     L0110
+        beq     store_pos
         lda     #$70
         cmp     ($FD),y
-        beq     L0110
+        beq     store_pos
         lda     #$71
         cmp     ($FD),y
-        beq     L0110
+        beq     store_pos
         lda     #$72
         cmp     ($FD),y
-        beq     L0110
+        beq     store_pos
         jmp     L1A79
-L1A71:  lda     $FD
+
+store_pos:
+        lda     $FD
         sta     $FB
         lda     $FE
         sta     $FC
@@ -261,65 +280,6 @@ L1A79:  lda     #$73
         rts
 L1AA0:  stx     $0334
         jmp     L1A53
-
-read_joy:
-        ldy     #$00
-        sty     VIA1_DDRA
-        lda     #$7F
-        sta     VIA2_DDRB
-        lda     #$20
-        sta     ($FB),y
-        lda     VIA2_PB
-        and     #$80
-        beq     L1B05
-        lda     #$FF
-        sta     VIA2_DDRB
-        lda     VIA1_PA2
-        and     #$04
-        beq     L1ADB
-        lda     VIA1_PA2
-        and     #$08
-        beq     L1AE9
-        lda     VIA1_PA2
-        and     #$10
-        beq     L1AF7
-        rts
-
-L1ADB:  sec
-        lda     $FB
-        sbc     #$1A
-        sta     $FD
-        lda     $FC
-        sbc     #$00
-        sta     $FE
-        rts
-
-L1AE9:  clc
-        lda     $FB
-        adc     #MAP_X_SIZE
-        sta     $FD
-        lda     $FC
-        adc     #$00
-        sta     $FE
-        rts
-
-L1AF7:  sec
-        lda     $FB
-        sbc     #$01
-        sta     $FD
-        lda     $FC
-        sbc     #$00
-        sta     $FE
-        rts
-
-L1B05:  clc
-        lda     $FB
-        adc     #$01
-        sta     $FD
-        lda     $FC
-        adc     #$00
-        sta     $FE
-        rts
 
 L1B15:  lda     $0340
         sta     $FB
