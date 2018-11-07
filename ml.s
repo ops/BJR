@@ -38,17 +38,17 @@ GHOST_DELAY := $0336
         jmp set_tune3           ; 33
 
 fill_cmem:
-        lda     #<(COLOR_MEM+$001A)
+        lda     #<COLOR_MEM
         sta     $FB
-        lda     #>(COLOR_MEM+$001A)
+        lda     #>COLOR_MEM
         sta     $FC
-        ldy     #$00
+        ldy     #MAP_X_SIZE
         lda     $033F
 @loop:  sta     ($FB),y
         iny
         bne     @loop
         inc     $FC
-        ldx     #>(COLOR_MEM+$0400)
+        ldx     #>(COLOR_MEM + $0400)
         cpx     $FC
         bne     @loop
         rts
@@ -64,7 +64,7 @@ fill_empty:
         bne     @loop
         inc     $FC
         inc     $FE
-        lda     #>(SCREEN_MEM+$0400)
+        lda     #>(SCREEN_MEM + $0400)
         cmp     $FC
         bne     @loop
         rts
@@ -151,17 +151,13 @@ irq2:   jsr     play_music
         jmp     LEABF
 
 read_joy:
-        ldy     #$00
-        sty     VIA1_DDRA
-        lda     #$7F
-        sta     VIA2_DDRB
-        lda     #$20
-        sta     ($FB),y
+        ldy     #$7F
+        sty     VIA2_DDRB
         lda     VIA2_PB
+        ldy     #$FF
+        sty     VIA2_DDRB
         and     #$80
         beq     pos_right
-        lda     #$FF
-        sta     VIA2_DDRB
         lda     VIA1_PA2
         and     #$04
         beq     pos_up
@@ -293,9 +289,12 @@ L1B15:  lda     $0340
         bne     L1B34
         lda     #$01
         sta     $90
-        jmp     L1B5B
+        jmp     L1B5D
 
-L1B34:  jsr     read_joy
+L1B34:  ldy     #$00
+        lda     #$20
+        sta     ($FB),y
+        jsr     read_joy
         ldy     #$00
         lda     #$20
         cmp     ($FD),y
@@ -307,24 +306,19 @@ L1B34:  jsr     read_joy
         sta     $90
 L1B49:  lda     #$74
         cmp     ($FD),y
-        bne     L1B5B
+        bne     L1B5D
         lda     #$02
         sta     $90
 L1B53:  lda     $FD
         sta     $FB
         lda     $FE
         sta     $FC
-L1B5B:  ldy     #$00
 L1B5D:  lda     #$6F
         sta     ($FB),y
         lda     $FB
         sta     $0340
         lda     $FC
         sta     $0341
-        lda     #$80
-        sta     VIA1_DDRA
-        lda     #$FF
-        sta     VIA2_DDRB
         rts
 
 next_player_char:
