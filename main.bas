@@ -25,7 +25,7 @@
 ; Game loop
 290 ti$="000000":c=0:hp=sc+778
 300 r=int(t-ti/60):ifr<0then510
-310 print"{wht}{home}time:"r"{left} "
+310 print"{home}time:"r"{left} "
 315 sys(ml+12):sys(ml+0):pokew,116
 320 ifr<9thenpoke36877,253
 330 if(peek(37137)and32)=0then760
@@ -41,10 +41,11 @@
 411 a$=a$+"loading...            "
 412 a$=a$+"time: 60  bombs: 0  men:"+str$(el)+" "
 415 a=len(a$)-22
-420 sys(ml+18):gosub1240:print"{wht}"
+420 sys(ml+18)
 430 fori=1to18:print"{home}"mid$(a$,i,26):gosub920:next
-440 poke831,(rnd(0)*6)+2:poke646,peek(831):sys(ml+3):sys(ml+9):gosub970
-445 print"{wht}"
+440 poke831,(rnd(0)*6)+2:poke646,peek(831):sys(ml+3)
+444 sys(ml+9)
+445 gosub970:print"{wht}"
 450 fori=18toa-4:print"{home}"mid$(a$,i,26):gosub920:next
 480 poke251,0:poke252,28:poke253,0:poke254,148:sys(ml+6)
 490 gosub150:sys(ml+15)
