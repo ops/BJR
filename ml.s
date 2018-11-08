@@ -1,17 +1,25 @@
+;;;
+;;; Bomb Jack Revisited
+;;;
+;;; 1985,2018 ops
+;;;
 
-MAP_X_SIZE = 26
-;MAP_Y_SIZE = 25
+VICCRA      := VIC+$0A
+VICCRB      := VIC+$0B
+VICCRC      := VIC+$0C
+VICCRE      := VIC+$0E
 
-VICCRA  := VIC+$0A
-VICCRB  := VIC+$0B
-VICCRC  := VIC+$0C
-VICCRE  := VIC+$0E
-LEABF   := $EABF
+COMCHK      := $CEFD
+GETBYT      := $D79B
+PARSL       := $E1D1
+IRQ         := $EABF
 
-SCREEN_MEM := $1c00
-COLOR_MEM := $9400
+SCREEN_MEM  := $1C00
+COLOR_MEM   := $9400
 
 GHOST_DELAY := $0336
+
+MAP_X_SIZE   = 26
 
         .setcpu "6502"
 
@@ -25,7 +33,7 @@ GHOST_DELAY := $0336
         .segment "CODE"
 
         jmp next_player_char    ; 00
-        jmp $0000               ; 03
+        jmp set_tune            ; 03
         jmp fill_empty          ; 06
         jmp load_map            ; 09
         jmp move_ghost          ; 12
@@ -33,9 +41,6 @@ GHOST_DELAY := $0336
         jmp reset_irq           ; 18
         jmp clear_screen        ; 21
         jmp set_irq2            ; 24
-        jmp set_tune1           ; 27
-        jmp set_tune2           ; 30
-        jmp set_tune3           ; 33
 
 fill_empty:
         lda     #<SCREEN_MEM
@@ -62,22 +67,12 @@ fill_empty:
         rts
 
 load_map:
-        lda     #$01
-        ldx     $ba
-        ldy     #$00
-        jsr     SETLFS
-        lda     #(NAME_END-NAME)
-        ldx     #<NAME
-        ldy     #>NAME
-        jsr     SETNAM
+        jsr     COMCHK
+        jsr     PARSL
         lda     #$00
-        ldx     #<(SCREEN_MEM+26)
-        ldy     #>(SCREEN_MEM+26)
-        jsr     LOAD
-        rts
-
-NAME:   .byte "map01.bin"
-NAME_END:
+        ldx     #<(SCREEN_MEM+MAP_X_SIZE)
+        ldy     #>(SCREEN_MEM+MAP_X_SIZE)
+        jmp     LOAD
 
 clear_screen:
         jsr     CLRSCR
@@ -137,10 +132,10 @@ my_irq:
         ldx     #$00
 L17F4:  stx     GHOST_DELAY
         jsr     play_music
-        jmp     LEABF
+        jmp     IRQ
 
 irq2:   jsr     play_music
-        jmp     LEABF
+        jmp     IRQ
 
 read_joy:
         ldy     #$7F
@@ -344,32 +339,22 @@ play_music:
         inc     $02
 @skip:  rts
 
-set_tune1:
-        lda     #<tune1
+
+set_tune:
+        jsr     GETBYT
+        txa
+        asl
+        tax
+        lda     tune_table,x
         sta     $01
-        lda     #>tune1
+        lda     tune_table+1,x
         sta     $02
         lda     #$00
         sta     $00
         rts
 
-set_tune2:
-        lda     #<tune2
-        sta     $01
-        lda     #>tune2
-        sta     $02
-        lda     #$00
-        sta     $00
-        rts
-
-set_tune3:
-        lda     #<tune3
-        sta     $01
-        lda     #>tune3
-        sta     $02
-        lda     #$00
-        sta     $00
-        rts
+tune_table:
+        .word   tune1,tune2,tune3
 
 tune1:  .byte   $C1,$0A,$00,$01,$C1,$0A
         .byte   $C8,$0A,$CB,$0A,$00,$01,$CB,$0A

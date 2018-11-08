@@ -30,7 +30,7 @@
 320 ifr<9thenpoke36877,253
 330 if(peek(37137)and32)=0then760
 340 iffthenk=k+1:ifk=3thenk=0:f=0:poke36874,0
-350 ifqandti>1087thensys(ml+18):q=0:sys(ml+33):sys(ml+15)
+350 ifqandti>1087thensys(ml+18):q=0:sys(ml+03),2:sys(ml+15)
 360 ifst<>0then110
 370 gosub170:hp=hp+h
 380 pokehp,115::ifh<>0thenpokehp-h,32
@@ -44,7 +44,11 @@
 420 sys(ml+18)
 425 poke646,(rnd(0)*6)+2:sys(ml+21):print"{wht}"
 430 fori=1to18:print"{home}"mid$(a$,i,26):gosub920:next
-444 sys(ml+09)
+435 l=l+1:ifl>8thenl=1
+436 l$=str$(l):l$=mid$(l$,2)
+437 ifl<10thenl$="0"+l$
+438 l$="map"+l$+".bin"
+444 sys(ml+09),l$,dn
 445 gosub970
 450 fori=18toa-4:print"{home}"mid$(a$,i,26):gosub920:next
 480 sys(ml+06)
@@ -57,8 +61,8 @@
 530 sys(ml+18)
 535 el=el-1:ifel=0then580
 540 poke36877,0:print"{home}time: 60  bombs: 0  men:"el
-550 sys(ml+27)
-560 gosub970:poke144,0:q=1
+550 sys(ml+03),0
+560 gosub970:poke144,0:q=1:c=0
 570 gosub150:poke820,0:sys(ml+15):goto290
 
 580 a$="                         "
@@ -69,7 +73,7 @@
 620 a$=a$+"ops in 1985. thanks to s.l. for the loading picture "
 625 a=len(a$)
 630 gosub1240:gosub1120
-640 sys(ml+18):poke0,0:sys(ml+33):sys(ml+15):sys(ml+24)
+640 sys(ml+18):poke0,0:sys(ml+03),2:sys(ml+15):sys(ml+24)
 650 pokehp,32:pokefnn(832),32
 670 fori=1toa
 675   print"{home}  "mid$(a$,i,22)
@@ -95,7 +99,8 @@
 ; Initial setup
 830 poke648,28:clr:gosub980
 840 ml=9216:sc=7168:t=60:el=8
-850 sys(ml+21):sys(ml+33)
+845 dn=peek(186)
+850 sys(ml+21):sys(ml+03),2
 880 poke36864,8:poke36865,27:poke36866,26:poke36867,62:poke36869,254
 890 poke36878,15
 900 deffnn(x)=peek(x)+256*peek(x+1)
@@ -122,9 +127,9 @@
 1040 poke822,0:poke36874,0:poke36877,0:ifpeek(36875)=0then1060
 1050 ifpeek(36875)<>1then1050
 1060 sys(ml+18):fori=0to400:next:gosub1240
-1070 sys(ml+30):poke822,0:sys(ml+15):sys(ml+24)
+1070 sys(ml+03),1:poke822,0:sys(ml+15):sys(ml+24)
 1080 ifpeek(36875)<>1then1080
-1090 sys(ml+18):sys(ml+33):return
+1090 sys(ml+18):sys(ml+03),2:return
 
 1100 pokefnn(832),32:pokefnn(834),32:pokefnn(836),32:pokefnn(838),32:pokew,32:pokehp,32
 1110 return
