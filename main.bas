@@ -9,18 +9,16 @@
 150 w=int(rnd(0)*726)+sc+52:ifpeek(w)<>32then150
 160 print"{home}{10 rght}bombs:"c"{left} ":pokew,116:return
 
-170 zx=0:ha=(hp-sc-1)/26-int((hp-sc-1)/26):pp=fnn(832)
-180 rd=rnd(0):pa=(pp-sc-1)/26-int((pp-sc-1)/26)
-190 ifrd<=.5then220
-200 ifrd>.5then250
-210 return
+170 zx=0:pp=fnn(832)
+175 ha=(hp-sc-1)/26-int((hp-sc-1)/26)
+180 pa=(pp-sc-1)/26-int((pp-sc-1)/26)
+200 rd=rnd(0):ifrd>.5then250
 220 ifhp<ppandpeek(hp+26)<117thenh=26:return
 230 ifhp>ppandpeek(hp-26)<117thenh=-26:return
-240 ifzxthen280
+240 ifzxthenh=0:return
 250 ifpa<haandpeek(hp-1)<117thenh=-1:return
 260 ifpa>haandpeek(hp+1)<117thenh=1:return
 270 zx=1:goto220
-280 h=0:return
 
 ; Game loop
 290 ti$="000000":hp=sc+778
@@ -97,13 +95,14 @@
 820 sys(ml+15):goto300
 
 ; Initial setup
-830 poke648,28:clr:gosub980
+830 clr:poke648,28
+831 deffnn(x)=peek(x)+256*peek(x+1)
+833 poke36864,8:poke36865,27:poke36866,26:poke36867,62:poke36869,254
+836 poke36879,8:poke36878,15
 840 ml=9216:sc=7168:t=60:el=8
 845 dn=peek(186)
+847 gosub980
 850 sys(ml+21):sys(ml+03),2
-880 poke36864,8:poke36865,27:poke36866,26:poke36867,62:poke36869,254
-890 poke36878,15
-900 deffnn(x)=peek(x)+256*peek(x+1)
 910 goto400
 
 ; Sound during text scroll
@@ -117,12 +116,13 @@
 
 970 restore:fori=0to7:readaa:poke832+i,aa:next:aa=0:return
 
-980 print"{clr}{blk}":poke36879,154:poke36866,22:poke36867,46:poke36869,242:printchr$(8)
-990 printtab(178)"Please reset tape":printchr$(13)
-1000 print"  counter to  '000'":printchr$(13)
-1010 print"    and press FIRE"
+980 sys(ml+21)
+990 printtab(159)"{yel}bomb jack revisited"
+990 printtab(12)"{yel}(c)  1985,2018 by ops"
+1000 printtab(73)"{wht}github.com/ops/bjr/"
+1010 printtab(93)"{grn}press fire to start"
 1020 if(peek(37137)and32)=32then1020
-1030 print"{clr}{wht}":poke36879,8:return
+1030 print"{clr}{wht}":return
 
 1040 poke822,0:poke36874,0:poke36877,0:ifpeek(36875)=0then1060
 1050 ifpeek(36875)<>1then1050
