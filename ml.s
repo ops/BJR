@@ -25,7 +25,7 @@ GHOST_DELAY := $0336
         .segment "CODE"
 
         jmp next_player_char    ; 00
-        jmp fill_cmem           ; 03
+        jmp $0000               ; 03
         jmp fill_empty          ; 06
         jmp load_map            ; 09
         jmp move_ghost          ; 12
@@ -37,24 +37,16 @@ GHOST_DELAY := $0336
         jmp set_tune2           ; 30
         jmp set_tune3           ; 33
 
-fill_cmem:
-        lda     #<COLOR_MEM
-        sta     $FB
-        lda     #>COLOR_MEM
-        sta     $FC
-        ldy     #MAP_X_SIZE
-        lda     $033F
-@loop:  sta     ($FB),y
-        iny
-        bne     @loop
-        inc     $FC
-        ldx     #>(COLOR_MEM + $0400)
-        cpx     $FC
-        bne     @loop
-        rts
-
 fill_empty:
-        ldy     #$00
+        lda     #<SCREEN_MEM
+        sta     $FB
+        lda     #>SCREEN_MEM
+        sta     $FC
+        lda     #<COLOR_MEM
+        sta     $FD
+        lda     #>COLOR_MEM
+        sta     $FE
+        ldy     #MAP_X_SIZE
 @loop:  lda     #$20
         cmp     ($FB),y
         bne     @skip
@@ -98,7 +90,7 @@ clear_screen:
         sta     $FE
 @loop:  lda     #$20
         sta     ($FB),y
-        lda     #$01
+        lda     646
         sta     ($FD),y
         iny
         bne     @loop

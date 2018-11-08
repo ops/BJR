@@ -2,7 +2,7 @@
 
 110 sys(ml+24)
 120 ifst=1then510
-130 ifst=2thenf=1:poke36874,250:pokew,32:c=c+1:gosub150:ifc=9thengoto400
+130 ifst=2thenf=1:poke36874,250:pokew,32:c=c+1:gosub150:ifc=2thenc=0:goto400
 140 poke144,0:sys(ml+15):goto370
 
 ; Set a new bomb
@@ -23,7 +23,7 @@
 280 h=0:return
 
 ; Game loop
-290 ti$="000000":c=0:hp=sc+778
+290 ti$="000000":hp=sc+778
 300 r=int(t-ti/60):ifr<0then510
 310 print"{home}time:"r"{left} "
 315 sys(ml+12):sys(ml+0):pokew,116
@@ -36,18 +36,18 @@
 380 pokehp,115::ifh<>0thenpokehp-h,32
 390 goto300
 
-400 gosub1100:gosub1040
+400 gosub1040
 410 a$="                         "
 411 a$=a$+"loading...            "
 412 a$=a$+"time: 60  bombs: 0  men:"+str$(el)+" "
 415 a=len(a$)-22
 420 sys(ml+18)
+425 poke646,(rnd(0)*6)+2:sys(ml+21):print"{wht}"
 430 fori=1to18:print"{home}"mid$(a$,i,26):gosub920:next
-440 poke831,(rnd(0)*6)+2:poke646,peek(831):sys(ml+3)
-444 sys(ml+9)
-445 gosub970:print"{wht}"
+444 sys(ml+09)
+445 gosub970
 450 fori=18toa-4:print"{home}"mid$(a$,i,26):gosub920:next
-480 poke251,0:poke252,28:poke253,0:poke254,148:sys(ml+6)
+480 sys(ml+06)
 490 gosub150:sys(ml+15)
 500 goto290
 
@@ -82,7 +82,7 @@
 720 el=8:sys(ml+18):gosub1240:sys(ml+21)
 730 print"    press play on tape{down}              and then fire!"
 740 if(peek(37137)and32)=32then740
-750 sys(ml+21):a$="":i=fre(0):goto400
+750 a$="":i=fre(0):goto400
 
 760 a$="                      pause mode...         "
 770 a=len(a$):b$=ti$:sys(ml+18):gosub1240
@@ -121,7 +121,7 @@
 
 1040 poke822,0:poke36874,0:poke36877,0:ifpeek(36875)=0then1060
 1050 ifpeek(36875)<>1then1050
-1060 sys(ml+18):sys(ml+21):fori=0to400:next:gosub1240
+1060 sys(ml+18):fori=0to400:next:gosub1240
 1070 sys(ml+30):poke822,0:sys(ml+15):sys(ml+24)
 1080 ifpeek(36875)<>1then1080
 1090 sys(ml+18):sys(ml+33):return
