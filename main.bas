@@ -114,7 +114,7 @@
 1060 fori=15to0step-.05:poke36878,i:next
 1070 gosub1280:poke36878,15:return
 
-1080 restore70:fori=0to7:reada:poke832+i,a:next:return
+1080 restore:fori=0to7:reada:poke832+i,a:next:return
 
 1090 sys(ml+21)
 1100 printtab(159)"{yel}bomb jack revisited"
