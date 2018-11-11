@@ -4,20 +4,22 @@
 ;;; 1985,2018 ops
 ;;;
 
-VICCRA      := VIC+$0A
-VICCRB      := VIC+$0B
-VICCRC      := VIC+$0C
-VICCRE      := VIC+$0E
+VICCRA       := VIC+$0A
+VICCRB       := VIC+$0B
+VICCRC       := VIC+$0C
+VICCRE       := VIC+$0E
 
-COMCHK      := $CEFD
-GETBYT      := $D79B
-PARSL       := $E1D1
-IRQ         := $EABF
+COMCHK       := $CEFD
+GETBYT       := $D79B
+PARSL        := $E1D1
+IRQ          := $EABF
 
-SCREEN_MEM  := $1C00
-COLOR_MEM   := $9400
+SCREEN_MEM   := $1C00
+COLOR_MEM    := $9400
 
-GHOST_DELAY := $0336
+GHOST_DELAY  := $0336
+PLAYER_DELAY := $0337
+CONTROL      := 888
 
 MAP_X_SIZE   = 26
 
@@ -32,15 +34,11 @@ MAP_X_SIZE   = 26
 
         .segment "CODE"
 
-        jmp next_player_char    ; 00
+        jmp clear_screen        ; 00
         jmp set_tune            ; 03
         jmp fill_empty          ; 06
         jmp load_map            ; 09
-        jmp move_ghost          ; 12
-        jmp start_irq           ; 15
-        jmp reset_irq           ; 18
-        jmp clear_screen        ; 21
-        jmp set_irq2            ; 24
+        jmp start_irq           ; 12
 
 fill_empty:
         lda     #<SCREEN_MEM
@@ -105,34 +103,33 @@ start_irq:
         cli
         rts
 
-set_irq2:
-        sei
-        lda     #<irq2
-        sta     IRQVec
-        lda     #>irq2
-        sta     IRQVec+1
-        cli
-        rts
-
-reset_irq:
-        sei
-        lda     #$BF
-        sta     IRQVec
-        lda     #$EA
-        sta     IRQVec+1
-        cli
-        rts
-
 my_irq:
-        ldx     GHOST_DELAY
+        lda     CONTROL
+        and     #1 << 0
+        beq     :+
+        jsr     play_music
+:       lda     CONTROL
+        and     #1 << 1
+        beq     :+
+        ldx     PLAYER_DELAY
         inx
-        cpx     #$04
-        bne     L17F4
+        cpx     #6
+        bne     @skip1
+        jsr     next_player_char
         jsr     L1B15
         ldx     #$00
-L17F4:  stx     GHOST_DELAY
-        jsr     play_music
-        jmp     IRQ
+@skip1: stx     PLAYER_DELAY
+:       lda     CONTROL
+        and     #1 << 2
+        beq     :+
+        ldx     GHOST_DELAY
+        inx
+        cpx     #8
+        bne     @skip2
+        jsr     move_ghost
+        ldx     #$00
+@skip2: stx     GHOST_DELAY
+:       jmp     IRQ
 
 irq2:   jsr     play_music
         jmp     IRQ
@@ -208,7 +205,6 @@ pos_down:
         rts
 
 move_ghost:
-        sei
 L1A53:  ldx     $0334
         lda     $0342,x
         sta     $FB
@@ -259,7 +255,6 @@ L1A79:  lda     #$73
         bne     L1AA0
         ldx     #$00
         stx     $0334
-        cli
         rts
 L1AA0:  stx     $0334
         jmp     L1A53
