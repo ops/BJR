@@ -1,8 +1,9 @@
 100 goto890
 
 ;; Set a new bomb
-110 w=int(rnd(0)*726)+sc+52:ifpeek(w)<>32then110
-120 print"{home}{10 rght}bombs:"c"{left} ":return
+110 poke144,0:print"{home}{10 rght}bombs:"c"{left} ":pokew,32
+115 w=int(rnd(0)*726)+sc+52:ifpeek(w)<>32then115
+120 return
 
 ;; Move the "smart" ghost
 130 zx=0
@@ -18,15 +19,15 @@
 
 ;; Game loop
 230 ti$="000000":hp=sc+778:c=0:gosub1040
-240 poke144,0:gosub110:poke888,7
+240 gosub110:poke888,7
 250 r=int(t-ti/60):ifr<0then550
 260 print"{home}time:"r"{left} "
 270 ifr<10thenpoke36877,253
 280 if(peek(37137)and32)=0then810
 290 ifpeek(0)=255thensys(ml+03),2
 300 ifst=1then550
-310 ifst=2thenf=1:poke144,0:poke36874,250:gosub110:c=c+1:ifc=8then360
-320 iffthenf=f+1:iff=4thenf=0:poke36874,0
+310 ifst=2thenj=1:poke36874,250:gosub110:c=c+1:ifc=8then360
+320 ifjthenj=j+1:ifj>3thenj=0:poke36874,0
 330 gosub130:hp=hp+h
 340 pokehp,115::ifh<>0thenpokehp-h,32
 350 pokew,116:goto250
@@ -111,7 +112,7 @@
 1020 fori=15to0step-.05:poke36878,i:next
 1030 gosub1240:poke36878,15:return
 
-1040 restore70:fori=0to7:reada:poke832+i,a:next:return
+1040 restore:fori=0to7:reada:poke832+i,a:next:return
 
 1050 sys(ml+00)
 1060 printtab(159)"{yel}bomb jack revisited"
