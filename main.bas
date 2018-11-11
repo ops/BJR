@@ -1,21 +1,22 @@
 100 goto940
 
-!- Set a new bomb
+;; Set a new bomb
 110 w=int(rnd(0)*726)+sc+52:ifpeek(w)<>32then110
 120 print"{home}{10 rght}bombs:"c"{left} ":return
 
-130 zx=0:pp=fnn(832)
-140 ha=(hp-sc-1)/26-int((hp-sc-1)/26)
-150 pa=(pp-sc-1)/26-int((pp-sc-1)/26)
-160 rd=rnd(0):ifrd>.5then200
-170 ifhp<ppandpeek(hp+26)<117thenh=26:return
-180 ifhp>ppandpeek(hp-26)<117thenh=-26:return
+;; Move the "smart" ghost
+130 zx=0
+140 hh=(hp-sc-1)/26:ha=hh-int(hh)
+150 pp=(fnn(832)-sc-1)/26:pa=pp-int(pp)
+160 ifrnd(0)>.5then200
+170 ifhh<ppandpeek(hp+26)<117thenh=26:return
+180 ifhh>ppandpeek(hp-26)<117thenh=-26:return
 190 ifzxthenh=0:return
-200 ifpa<haandpeek(hp-1)<117thenh=-1:return
-210 ifpa>haandpeek(hp+1)<117thenh=1:return
+200 ifha<paandpeek(hp+1)<117thenh=1:return
+210 ifha>paandpeek(hp-1)<117thenh=-1:return
 220 zx=1:goto170
 
-!- Game loop
+;; Game loop
 230 ti$="000000":hp=sc+778
 240 r=int(t-ti/60):ifr<1then580
 250 print"{home}time:"r"{left} "
@@ -24,7 +25,7 @@
 280 if(peek(37137)and32)=0then870
 290 ifqandti>1087thensys(ml+18):q=0:sys(ml+03),2:sys(ml+15)
 300 ifst=1then580
-310 ifst=2thenf=1:poke144,0:poke36874,250:pokew,32:gosub110:c=c+1:ifc=2thenc=0:goto360
+310 ifst=2thenf=1:poke144,0:poke36874,250:gosub110:c=c+1:ifc=2thenc=0:goto360
 320 iffthenf=f+1:iff=4thenf=0:poke36874,0
 330 gosub130:hp=hp+h
 340 pokehp,115::ifh<>0thenpokehp-h,32
@@ -53,7 +54,7 @@
 560 sys(ml+06):sys(ml+15)
 570 goto230
 
-!- Death of player
+;; Death of player
 580 sys(ml+24):poke36874,0:poke36877,0:gosub1160:ifr<0thengosub1040:goto600
 590 ifpeek(36875)<>1then590
 600 sys(ml+18)
@@ -94,7 +95,7 @@
 920 ti$=b$:print"{home}time:"int(t=ti/60)"  bombs:"c" men:"el
 930 sys(ml+15):goto240
 
-!- Initial setup
+;; Initial setup
 940 clr:poke648,28
 950 deffnn(x)=peek(x)+256*peek(x+1)
 960 poke36864,8:poke36865,27:poke36866,26:poke36867,62:poke36869,254
@@ -105,10 +106,10 @@
 1010 sys(ml+21):sys(ml+03),2
 1020 goto360
 
-!- Sound during text scroll
+;; Sound during text scroll
 1030 forj=0to7:poke36874,j+128:next:poke36874,0:return
 
-!- The bomb explodes!
+;; The bomb explodes!
 1040 poke36879,24:sys(ml+18):gosub1280
 1050 poke36877,140:poke36879,8:poke36874,128
 1060 fori=15to0step-.05:poke36878,i:next
@@ -138,7 +139,7 @@
 1260 next
 1270 poke36874,0:poke36878,15:print"{wht}":return
 
-!- Silence sounds
+;; Silence sounds
 1280 fori=0to3:poke36874+i,0:next:return
 
 1290 data53,28,76,28,243,30,10,31
