@@ -4,32 +4,15 @@
 ;;; 1985,2018 ops
 ;;;
 
+COLUMNS = 22
+ROWS    = 10
+
 PTR1 = $FB
 PTR2 = $FD
-
-VICCR0 := VIC+$0
-VICCR1 := VIC+$1
-VICCR2 := VIC+$2
-VICCR3 := VIC+$3
-VICCR4 := VIC+$4
-VICCR5 := VIC+$5
-VICCR6 := VIC+$6
-VICCR7 := VIC+$7
-VICCR8 := VIC+$8
-VICCR9 := VIC+$9
-VICCRA := VIC+$A
-VICCRB := VIC+$B
-VICCRC := VIC+$C
-VICCRD := VIC+$D
-VICCRE := VIC+$E
-VICCRF := VIC+$F
 
 LNKPRG := $C533
 STXTPT := $C68E
 NEWSTT := $C7AE
-
-COLUMNS = 22
-ROWS    = 10
 
         .setcpu "6502"
 
@@ -49,19 +32,19 @@ ROWS    = 10
         jsr     CLRSCR
 
         lda     #$0C
-        sta     VICCR0
+        sta     VIC_CR0
         lda     #$2B
-        sta     VICCR1
+        sta     VIC_CR1
         lda     #$80+COLUMNS
-        sta     VICCR2
+        sta     VIC_CR2
         lda     #(ROWS << 1) | $01
-        sta     VICCR3
+        sta     VIC_CR3
         lda     #$FC
-        sta     VICCR5
+        sta     VIC_CR5
         lda     #$97
-        sta     VICCRE
+        sta     VIC_CRE
         lda     #$E8
-        sta     VICCRF
+        sta     VIC_CRF
 
         lda     #$00
         ldx     #$0e
@@ -86,7 +69,7 @@ ROWS    = 10
         ldy     #>pic
         jsr     SETNAM
         lda     #$00
-        jsr     LOAD
+        ;jsr     LOAD
 
         ; load ML routines
         lda     #$01

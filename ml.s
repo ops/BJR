@@ -4,11 +4,6 @@
 ;;; 1985,2018 ops
 ;;;
 
-VICCRA       := VIC+$0A
-VICCRB       := VIC+$0B
-VICCRC       := VIC+$0C
-VICCRE       := VIC+$0E
-
 COMCHK       := $CEFD
 GETBYT       := $D79B
 PARSL        := $E1D1
@@ -321,8 +316,8 @@ play_music:
         sty     $00
         rts
 @next:  lda     ($01),y
-        sta     VICCRC
-        sta     VICCRB
+        sta     VIC_CRC
+        sta     VIC_CRB
         iny
         lda     ($01),y
         sta     $00
