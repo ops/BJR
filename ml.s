@@ -108,7 +108,7 @@ my_irq:
         beq     :+
         ldx     PLAYER_DELAY
         inx
-        cpx     #6
+        cpx     #5
         bne     @skip1
         jsr     next_player_char
         jsr     L1B15
@@ -125,9 +125,6 @@ my_irq:
         ldx     #$00
 @skip2: stx     GHOST_DELAY
 :       jmp     IRQ
-
-irq2:   jsr     play_music
-        jmp     IRQ
 
 read_joy:
         ldy     #$7F
@@ -152,7 +149,6 @@ get_new_pos:
         lda     $9119
         adc     $9128
         and     #$03
-        cmp     #$00
         beq     pos_right
         cmp     #$01
         beq     pos_left
@@ -254,7 +250,9 @@ L1A79:  lda     #$73
 L1AA0:  stx     $0334
         jmp     L1A53
 
-L1B15:  lda     $0340
+L1B15:  lda     $90
+        bne     out
+        lda     $0340
         sta     $FB
         sta     $FD
         lda     $0341
@@ -296,7 +294,7 @@ L1B5D:  lda     #$6F
         sta     $0340
         lda     $FC
         sta     $0341
-        rts
+out:    rts
 
 next_player_char:
         ldy     L1B5D+1
