@@ -126,6 +126,7 @@
 1100 dn=peek(186)
 1110 gosub1140
 1120 poke888,0:poke0,255
+1125 poke828,111:poke829,1:poke830,1:poke831,1
 1130 sys(ml+12):sys(ml+00):goto360
 
 ;; Title screen

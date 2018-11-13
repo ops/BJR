@@ -4,19 +4,31 @@
 ;;; 1985,2018 ops
 ;;;
 
-COMCHK       := $CEFD
-GETBYT       := $D79B
-PARSL        := $E1D1
-IRQ          := $EABF
+COMCHK          := $CEFD
+GETBYT          := $D79B
+PARSL           := $E1D1
+IRQ             := $EABF
 
-SCREEN_MEM   := $1C00
-COLOR_MEM    := $9400
+SCREEN_MEM      := $1C00
+COLOR_MEM       := $9400
 
-GHOST_DELAY  := $0336
-PLAYER_DELAY := $0337
-CONTROL      := 888
+CURR_PLAYER_CH  := $033C
+GHOST_DELAY     := $033D
+PLAYER_DELAY    := $033E
+PLAYER_CH_DELAY := $033F
+PLAYER_POS      := $0340
+GHOST_POS       := $0342  ; to $0347
+CONTROL         := 888    ; $0378
 
-MAP_X_SIZE   = 26
+MAP_X_SIZE    = 26
+
+CH_EMPTY      = $20
+CH_PLAYER_MIN = $6F
+CH_PLAYER_MAX = $72
+CH_GHOST      = $73
+CH_BOMB       = $74
+CH_WALL_MIN   = $75
+CH_WALL_MAX   = $7F
 
         .setcpu "6502"
 
@@ -45,7 +57,7 @@ fill_empty:
         lda     #>COLOR_MEM
         sta     $FE
         ldy     #MAP_X_SIZE
-@loop:  lda     #$20
+@loop:  lda     #CH_EMPTY
         cmp     ($FB),y
         bne     @skip
         lda     #$01
@@ -76,7 +88,7 @@ clear_screen:
         sta     $FC
         lda     #>COLOR_MEM
         sta     $FE
-@loop:  lda     #$20
+@loop:  lda     #CH_EMPTY
         sta     ($FB),y
         lda     646
         sta     ($FD),y
@@ -106,32 +118,30 @@ my_irq:
 :       lda     CONTROL
         and     #1 << 1
         beq     :+
-        ldx     PLAYER_DELAY
-        inx
-        cpx     #5
-        bne     @skip1
         jsr     next_player_char
-        jsr     L1B15
-        ldx     #$00
-@skip1: stx     PLAYER_DELAY
+        dec     PLAYER_DELAY
+        bne     :+
+        jsr     move_player
+        lda     #$05
+        sta     PLAYER_DELAY
 :       lda     CONTROL
         and     #1 << 2
         beq     :+
-        ldx     GHOST_DELAY
-        inx
-        cpx     #8
-        bne     @skip2
+        dec     GHOST_DELAY
+        bne     :+
         jsr     move_ghost
-        ldx     #$00
-@skip2: stx     GHOST_DELAY
+        lda     #$08
+        sta     GHOST_DELAY
 :       jmp     IRQ
 
 read_joy:
-        ldy     #$7F
-        sty     VIA2_DDRB
+        lda     #$7F
+        sta     VIA2_DDRB
         lda     VIA2_PB
-        ldy     #$FF
-        sty     VIA2_DDRB
+        pha
+        lda     #$FF
+        sta     VIA2_DDRB
+        pla
         and     #$80
         beq     pos_right
         lda     VIA1_PA2
@@ -154,7 +164,6 @@ get_new_pos:
         beq     pos_left
         cmp     #$02
         beq     pos_down
-        ; Move up
 pos_up:
         sec
         lda     $FB
@@ -164,7 +173,6 @@ pos_up:
         sbc     #$00
         sta     $FE
         rts
-        ; Move right
 pos_right:
         clc
         lda     $FB
@@ -174,7 +182,6 @@ pos_right:
         adc     #$00
         sta     $FE
         rts
-        ; Move left
 pos_left:
         sec
         lda     $FB
@@ -184,7 +191,6 @@ pos_left:
         sbc     #$00
         sta     $FE
         rts
-        ; Move down
 pos_down:
         clc
         lda     $FB
@@ -196,90 +202,77 @@ pos_down:
         rts
 
 move_ghost:
-L1A53:  ldx     $0334
-        lda     $0342,x
+        ldx     #$00
+@loop:  lda     GHOST_POS,x
         sta     $FB
-        inx
-        lda     $0342,x
+        lda     GHOST_POS+1,x
         sta     $FC
-        stx     $0334
         jsr     get_new_pos
         ldy     #$00
-        lda     #$20
+        lda     #CH_EMPTY
         sta     ($FB),y
         cmp     ($FD),y
-L010E:  beq     store_pos
-L0113:  lda     #$74
+        beq     @store
+        lda     #CH_BOMB
         cmp     ($FD),y
-        beq     store_pos
-        lda     #$6F
+        beq     @store
+        lda     #CH_PLAYER_MIN
         cmp     ($FD),y
-        beq     store_pos
-        lda     #$70
+        beq     @store
+        lda     #CH_PLAYER_MIN+1
         cmp     ($FD),y
-        beq     store_pos
-        lda     #$71
+        beq     @store
+        lda     #CH_PLAYER_MIN+2
         cmp     ($FD),y
-        beq     store_pos
-        lda     #$72
+        beq     @store
+        lda     #CH_PLAYER_MIN+3
         cmp     ($FD),y
-        beq     store_pos
-        jmp     L1A79
-
-store_pos:
-        lda     $FD
+        bne     @skip
+@store: lda     $FD
         sta     $FB
         lda     $FE
         sta     $FC
-L1A79:  lda     #$73
-        ldy     #$00
+@skip:  lda     #CH_GHOST
         sta     ($FB),y
-        ldx     $0334
-        dex
         lda     $FB
-        sta     $0342,x
+        sta     GHOST_POS,x
         inx
         lda     $FC
-        sta     $0342,x
+        sta     GHOST_POS,x
         inx
         cpx     #$06
-        bne     L1AA0
-        ldx     #$00
-        stx     $0334
+        bne     @loop
         rts
-L1AA0:  stx     $0334
-        jmp     L1A53
 
-L1B15:  lda     $90
-        bne     out
-        lda     $0340
+.proc move_player
+        lda     $90
+        bne     @out
+        lda     PLAYER_POS
         sta     $FB
         sta     $FD
-        lda     $0341
+        lda     PLAYER_POS+1
         sta     $FC
         sta     $FE
         ldy     #$00
-        lda     #$73
+        lda     #CH_GHOST
         cmp     ($FB),y
-        bne     L1B34
+        bne     @skip
         lda     #$01
         sta     $90
-        jmp     L1B5D
-
-L1B34:  ldy     #$00
-        lda     #$20
+@out:   rts
+@skip:  lda     #CH_EMPTY
         sta     ($FB),y
         jsr     read_joy
-        ldy     #$00
-        lda     #$20
+        lda     #CH_EMPTY
         cmp     ($FD),y
         beq     L1B53
-        lda     #$73
+        lda     #CH_GHOST
         cmp     ($FD),y
         bne     L1B49
         lda     #$01
         sta     $90
-L1B49:  lda     #$74
+        rts
+L1B49:  lda     #CH_BOMB
         cmp     ($FD),y
         bne     L1B5D
         lda     #$02
@@ -288,22 +281,27 @@ L1B53:  lda     $FD
         sta     $FB
         lda     $FE
         sta     $FC
-L1B5D:  lda     #$6F
+L1B5D:  lda     CURR_PLAYER_CH
         sta     ($FB),y
         lda     $FB
-        sta     $0340
+        sta     PLAYER_POS
         lda     $FC
-        sta     $0341
-out:    rts
+        sta     PLAYER_POS+1
+        rts
+.endproc
 
 next_player_char:
-        ldy     L1B5D+1
+        dec     PLAYER_CH_DELAY
+        bne     @out
+        ldy     #10
+        sty     PLAYER_CH_DELAY
+        ldy     CURR_PLAYER_CH
         iny
-        cpy     #$73
-        bne     L013E
-        ldy     #$6F
-L013E:  sty     L1B5D+1
-        rts
+        cpy     #CH_PLAYER_MAX+1
+        bne     @skip
+        ldy     #CH_PLAYER_MIN
+@skip:  sty     CURR_PLAYER_CH
+@out:   rts
 
 play_music:
         ldy     $00
