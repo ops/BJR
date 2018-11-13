@@ -69,7 +69,7 @@ NEWSTT := $C7AE
         ldy     #>pic
         jsr     SETNAM
         lda     #$00
-        ;jsr     LOAD
+        jsr     LOAD
 
         ; load ML routines
         lda     #$01
