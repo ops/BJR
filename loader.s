@@ -47,7 +47,7 @@ NEWSTT := $C7AE
         sta     VIC_CRF
 
         lda     #$00
-        ldx     #$0e
+        ldx     #$0E
         ldy     #$10
         jsr     fill_pages
 
@@ -61,7 +61,7 @@ NEWSTT := $C7AE
 
         ; load loading picture
         lda     #$01
-        ldx     $BA
+        ldx     DEVNUM
         ldy     #$FF
         jsr     SETLFS
         lda     #pic_end-pic
@@ -69,11 +69,11 @@ NEWSTT := $C7AE
         ldy     #>pic
         jsr     SETNAM
         lda     #$00
-        jsr     LOAD
+        ;jsr     LOAD
 
         ; load ML routines
         lda     #$01
-        ldx     $BA
+        ldx     DEVNUM
         ldy     #$FF
         jsr     SETLFS
         lda     #ml_end-ml
@@ -85,7 +85,7 @@ NEWSTT := $C7AE
 
         ; load character data
         lda     #$01
-        ldx     $BA
+        ldx     DEVNUM
         ldy     #$00
         jsr     SETLFS
         lda     #chr_end-chr
@@ -99,7 +99,7 @@ NEWSTT := $C7AE
 
         ; load main program
         lda     #$01
-        ldx     $BA
+        ldx     DEVNUM
         ldy     #$FF
         jsr     SETLFS
         lda     #main_end-main

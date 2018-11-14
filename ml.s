@@ -20,15 +20,15 @@ PLAYER_POS      := $0340
 GHOST_POS       := $0342  ; to $0347
 CONTROL         := 888    ; $0378
 
-MAP_X_SIZE    = 26
+MAP_X_SIZE       = 26
 
-CH_EMPTY      = $20
-CH_PLAYER_MIN = $6F
-CH_PLAYER_MAX = $72
-CH_GHOST      = $73
-CH_BOMB       = $74
-CH_WALL_MIN   = $75
-CH_WALL_MAX   = $7F
+CH_EMPTY         = $20
+CH_PLAYER_MIN    = $6F
+CH_PLAYER_MAX    = $72
+CH_GHOST         = $73
+CH_BOMB          = $74
+CH_WALL_MIN      = $75
+CH_WALL_MAX      = $7F
 
         .setcpu "6502"
 
@@ -41,45 +41,14 @@ CH_WALL_MAX   = $7F
 
         .segment "CODE"
 
+        ; Jump table for subroutines
         jmp clear_screen        ; 00
         jmp set_tune            ; 03
-        jmp fill_empty          ; 06
+        jmp paint_lanes         ; 06
         jmp load_map            ; 09
         jmp start_irq           ; 12
 
-fill_empty:
-        lda     #<SCREEN_MEM
-        sta     $FB
-        lda     #>SCREEN_MEM
-        sta     $FC
-        lda     #<COLOR_MEM
-        sta     $FD
-        lda     #>COLOR_MEM
-        sta     $FE
-        ldy     #MAP_X_SIZE
-@loop:  lda     #CH_EMPTY
-        cmp     ($FB),y
-        bne     @skip
-        lda     #$01
-        sta     ($FD),y
-@skip:  iny
-        bne     @loop
-        inc     $FC
-        inc     $FE
-        lda     #>(SCREEN_MEM + $0400)
-        cmp     $FC
-        bne     @loop
-        rts
-
-load_map:
-        jsr     COMCHK
-        jsr     PARSL
-        lda     #$00
-        ldx     #<(SCREEN_MEM+MAP_X_SIZE)
-        ldy     #>(SCREEN_MEM+MAP_X_SIZE)
-        jmp     LOAD
-
-clear_screen:
+.proc clear_screen
         jsr     CLRSCR
         ldy     #$00
         sty     $FB
@@ -88,6 +57,7 @@ clear_screen:
         sta     $FC
         lda     #>COLOR_MEM
         sta     $FE
+        ldx     #$04
 @loop:  lda     #CH_EMPTY
         sta     ($FB),y
         lda     646
@@ -96,12 +66,46 @@ clear_screen:
         bne     @loop
         inc     $FC
         inc     $FE
-        lda     #>(SCREEN_MEM + $0400)
-        cmp     $FC
+        dex
         bne     @loop
         rts
+.endproc
 
-start_irq:
+.proc paint_lanes
+        lda     #<SCREEN_MEM
+        sta     $FB
+        lda     #>SCREEN_MEM
+        sta     $FC
+        lda     #<COLOR_MEM
+        sta     $FD
+        lda     #>COLOR_MEM
+        sta     $FE
+        ldx     #$04
+        ldy     #MAP_X_SIZE
+@loop:  lda     #CH_EMPTY
+        cmp     ($FB),y
+        bne     :+
+        lda     #$01
+        sta     ($FD),y
+:       iny
+        bne     @loop
+        inc     $FC
+        inc     $FE
+        dex
+        bne     @loop
+        rts
+.endproc
+
+.proc load_map
+        jsr     COMCHK
+        jsr     PARSL
+        lda     #$00
+        ldx     #<(SCREEN_MEM+MAP_X_SIZE)
+        ldy     #>(SCREEN_MEM+MAP_X_SIZE)
+        jmp     LOAD
+.endproc
+
+.proc start_irq
         sei
         lda     #<my_irq
         sta     IRQVec
@@ -109,8 +113,9 @@ start_irq:
         sta     IRQVec+1
         cli
         rts
+.endproc
 
-my_irq:
+.proc my_irq
         lda     CONTROL
         and     #1 << 0
         beq     :+
@@ -118,8 +123,12 @@ my_irq:
 :       lda     CONTROL
         and     #1 << 1
         beq     :+
+        dec     PLAYER_CH_DELAY
+        bne     @skip
         jsr     next_player_char
-        dec     PLAYER_DELAY
+        ldy     #10
+        sty     PLAYER_CH_DELAY
+@skip:  dec     PLAYER_DELAY
         bne     :+
         jsr     move_player
         lda     #$05
@@ -129,12 +138,13 @@ my_irq:
         beq     :+
         dec     GHOST_DELAY
         bne     :+
-        jsr     move_ghost
+        jsr     move_ghosts
         lda     #$08
         sta     GHOST_DELAY
 :       jmp     IRQ
+.endproc
 
-read_joy:
+.proc read_joy
         lda     #$7F
         sta     VIA2_DDRB
         lda     VIA2_PB
@@ -154,6 +164,7 @@ read_joy:
         and     #$10
         beq     pos_left
         rts
+.endproc
 
 get_new_pos:
         lda     $9119
@@ -164,6 +175,7 @@ get_new_pos:
         beq     pos_left
         cmp     #$02
         beq     pos_down
+        ; fall through
 pos_up:
         sec
         lda     $FB
@@ -201,7 +213,7 @@ pos_down:
         sta     $FE
         rts
 
-move_ghost:
+.proc move_ghosts
         ldx     #$00
 @loop:  lda     GHOST_POS,x
         sta     $FB
@@ -211,38 +223,23 @@ move_ghost:
         ldy     #$00
         lda     #CH_EMPTY
         sta     ($FB),y
+        lda     #CH_WALL_MIN
         cmp     ($FD),y
-        beq     @store
-        lda     #CH_BOMB
-        cmp     ($FD),y
-        beq     @store
-        lda     #CH_PLAYER_MIN
-        cmp     ($FD),y
-        beq     @store
-        lda     #CH_PLAYER_MIN+1
-        cmp     ($FD),y
-        beq     @store
-        lda     #CH_PLAYER_MIN+2
-        cmp     ($FD),y
-        beq     @store
-        lda     #CH_PLAYER_MIN+3
-        cmp     ($FD),y
-        bne     @skip
-@store: lda     $FD
+        bcc     :+
+        lda     $FD
         sta     $FB
+        sta     GHOST_POS,x
         lda     $FE
         sta     $FC
-@skip:  lda     #CH_GHOST
+        sta     GHOST_POS+1,x
+:       lda     #CH_GHOST
         sta     ($FB),y
-        lda     $FB
-        sta     GHOST_POS,x
         inx
-        lda     $FC
-        sta     GHOST_POS,x
         inx
         cpx     #$06
         bne     @loop
         rts
+.endproc
 
 .proc move_player
         lda     $90
@@ -268,11 +265,11 @@ move_ghost:
         beq     L1B53
         lda     #CH_GHOST
         cmp     ($FD),y
-        bne     L1B49
+        bne     :+
         lda     #$01
         sta     $90
         rts
-L1B49:  lda     #CH_BOMB
+:       lda     #CH_BOMB
         cmp     ($FD),y
         bne     L1B5D
         lda     #$02
@@ -290,20 +287,17 @@ L1B5D:  lda     CURR_PLAYER_CH
         rts
 .endproc
 
-next_player_char:
-        dec     PLAYER_CH_DELAY
-        bne     @out
-        ldy     #10
-        sty     PLAYER_CH_DELAY
+.proc next_player_char
         ldy     CURR_PLAYER_CH
         iny
         cpy     #CH_PLAYER_MAX+1
-        bne     @skip
+        bne     :+
         ldy     #CH_PLAYER_MIN
-@skip:  sty     CURR_PLAYER_CH
-@out:   rts
+:       sty     CURR_PLAYER_CH
+        rts
+.endproc
 
-play_music:
+.proc play_music
         ldy     $00
         beq     @next
         cpy     #$FF
@@ -324,9 +318,9 @@ play_music:
         bcc     @skip
         inc     $02
 @skip:  rts
+.endproc
 
-
-set_tune:
+.proc set_tune
         jsr     GETBYT
         txa
         asl
@@ -338,6 +332,7 @@ set_tune:
         lda     #$00
         sta     $00
         rts
+.endproc
 
 tune_table:
         .word   tune1,tune2,tune3

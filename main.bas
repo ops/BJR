@@ -1,3 +1,9 @@
+;;;
+;;; Bomb Jack Revisited
+;;;
+;;; 1985,2018 ops
+;;;
+
 100 goto1050
 
 ;; Move the "smart" ghost
@@ -13,8 +19,9 @@
 200 zx=1:goto150
 
 ;; Set a new bomb
-210 w=int(rnd(0)*726)+sc+52:ifpeek(w)<>32then210
-220 poke144,0:print"{home}{10 rght}bombs:"c"{left} ":return
+210 poke144,0:print"{home}{10 rght}bombs:"c"{left} "
+215 w=int(rnd(0)*726)+sc+52:ifpeek(w)<>32then215
+220 return
 
 ;; Game loop
 230 ti$="000000":hp=sc+778:c=0:gosub1040

@@ -36,7 +36,7 @@ all: $(BAS_PRG) $(ML_PRG) $(LOADER_PRG) $(BJR_PRG)
 .PHONY: all image clean
 
 $(BAS_PRG): $(BAS_SRC)
-	$(PETCAT) $(PETCAT_FLAGS) $(BAS_SRC) > $@
+	$(PETCAT) $(PETCAT_FLAGS) -o $@ $(BAS_SRC)
 
 $(ML_PRG) : $(ML_CONFIG) $(ML_OBJECTS)
 	$(LD) $(LDFLAGS) -o $@ -S $(ML_START_ADDR) $(ML_OBJECTS)
