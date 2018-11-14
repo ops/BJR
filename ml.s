@@ -223,9 +223,9 @@ pos_down:
         ldy     #$00
         lda     #CH_EMPTY
         sta     ($FB),y
-        lda     #CH_WALL_MIN
-        cmp     ($FD),y
-        bcc     :+
+        lda     ($FD),y
+        cmp     #CH_WALL_MIN-1
+        bcs     :+
         lda     $FD
         sta     $FB
         sta     GHOST_POS,x
