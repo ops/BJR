@@ -7,32 +7,31 @@
 100 goto1050
 
 ;; Move the "smart" ghost
-110 zx=0
-120 hh=(hp-sc-1)/26:ha=hh-int(hh)
+110 hh=(hp-sc-1)/26:ha=hh-int(hh)
 130 pp=(fnn(832)-sc-1)/26:pa=pp-int(pp)
-140 ifrnd(0)>.5then180
+140 a=0:ifrnd(0)>.5then180
 150 ifhh<ppandpeek(hp+26)<117thenh=26:return
 160 ifhh>ppandpeek(hp-26)<117thenh=-26:return
-170 ifzxthenh=0:return
+170 ifathenh=0:return
 180 ifha<paandpeek(hp+1)<117thenh=1:return
 190 ifha>paandpeek(hp-1)<117thenh=-1:return
-200 zx=1:goto150
+200 a=1:goto150
 
 ;; Set a new bomb
-210 poke144,0:print"{home}{10 rght}bombs:"c"{left} "
+210 poke144,0:print"{home}{10 rght}bombs:"c"
 215 w=int(rnd(0)*726)+sc+52:ifpeek(w)<>32then215
 220 return
 
 ;; Game loop
 230 ti$="000000":hp=sc+778:c=0:gosub1040
 240 gosub210:poke888,7
-250 r=int(t-ti/60):ifr<0then550
+250 r=int(60-ti/60):ifr<0then550
 260 print"{home}time:"r"{left} "
 270 ifr<10thenpoke36877,253
 280 if(peek(37137)and32)=0thengosub910
 290 ifpeek(0)=255thensys(ml+03),2
 300 ifst=1then550
-310 ifst=2thenj=1:poke36874,250:c=c+1:gosub210:ifc=8then360
+310 ifst=2thenj=1:poke36874,250:c=c+1:gosub210:ifc=9then360
 320 ifjthenj=j+1:ifj>3thenj=0:poke36874,0
 330 gosub110:hp=hp+h
 340 pokehp,115::ifh<>0thenpokehp-h,32
@@ -110,7 +109,7 @@
 940 fori=1to15:print"{home}"mid$(a$,i,26):gosub990:next
 950 if(peek(37137)and32)=32then950
 960 fori=15to37:print"{home}"mid$(a$,i,26):gosub990:next
-970 ti$=b$:print"{home}time:"int(t-ti/60)" bombs:"c" men:"el
+970 ti$=b$:print"{home}{10 rght}bombs:"c" men:"el
 980 poke888,7:return
 
 ;; Sound effect during text scroll
@@ -129,8 +128,7 @@
 1060 deffnn(x)=peek(x)+256*peek(x+1)
 1070 poke36864,8:poke36865,27:poke36866,26:poke36867,62:poke36869,254
 1080 poke36879,8:poke36878,15
-1090 ml=9216:sc=7168:t=60:el=8
-1100 dn=peek(186)
+1090 ml=9216:sc=7168:el=8:dn=peek(186)
 1110 gosub1140
 1120 poke888,0:poke0,255
 1125 poke828,111:poke829,1:poke830,1:poke831,1
