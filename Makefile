@@ -3,7 +3,7 @@
 #
 include VERSION
 
-VERSION_STR=$(BJR_VERSION_MAJOR).$(BJR_VERSION_MINOR)
+VERSION_STR=v$(BJR_VERSION_MAJOR).$(BJR_VERSION_MINOR)
 
 BAS_PRG = main.prg
 BAS_SRC = main.bas
@@ -21,7 +21,8 @@ BJR_PRG = bjr-2018
 BJR_OBJECTS := bjr.o
 BJR_START_ADDR := 4609
 
-IMAGE := bjr-v$(VERSION_STR).d64
+IMAGE := bjr-$(VERSION_STR).d64
+RELEASE_FILE := "Bomb_Jack_Revisited_$(VERSION_STR)(+8k).zip"
 
 AS := ca65
 LD := ld65
@@ -67,6 +68,9 @@ image: all
 	c1541 $(IMAGE) -write map07.bin
 	c1541 $(IMAGE) -write map08.bin
 
+release: image
+	zip -9 $(RELEASE_FILE) $(IMAGE)
+
 testimage: image
 	xvic -memory 8k -autostart $(IMAGE)
 
@@ -75,5 +79,5 @@ clean:
 	$(RM) $(LOADER_OBJECTS) $(LOADER_PRG)
 	$(RM) $(BJR_OBJECTS) $(BJR_PRG)
 	$(RM) $(BAS_PRG)
-	$(RM) $(IMAGE)
+	$(RM) $(RELEASE_FILE) $(IMAGE)
 	$(RM) *~
