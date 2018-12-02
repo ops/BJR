@@ -1,2 +1,0 @@
-# BJR
-Bomb Jack Revisited
