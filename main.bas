@@ -74,7 +74,7 @@
 650 a$=a$+"bomb jack was programmed by "
 660 a$=a$+"ops in 1985. thanks to s.l. for the loading picture "
 670 a$=a$+"and catchy tunes. the game was updated in 2018 by ops. "
-680 a$=a$+"   github.com/ops/bjr/ "
+680 a$=a$+"    ops.github.io/bjr/ "
 690 a=len(a$):gosub780:gosub1210:poke888,5
 700 fori=1toa
 710   print"{home}  "mid$(a$,i,22)
@@ -135,7 +135,7 @@
 1140 poke646,1:sys(ml+00):sys(ml+18)
 1150 printtab(159)"{yel}bomb jack revisited"
 1160 printtab(12)"{yel}(c)  1985,2018 by ops"
-1170 printtab(73)"{wht}github.com/ops/bjr/"
+1170 printtab(73)"{wht}ops.github.io/bjr/"
 1180 printtab(93)"{grn}press fire to start"
 1190 if(peek(37137)and32)=32then1190
 1200 return
