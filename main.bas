@@ -132,7 +132,7 @@
 1130 sys(ml+12):sys(ml+00):goto360
 
 ;; Title screen
-1140 sys(ml+00)
+1140 poke646,1:sys(ml+00):sys(ml+18)
 1150 printtab(159)"{yel}bomb jack revisited"
 1160 printtab(12)"{yel}(c)  1985,2018 by ops"
 1170 printtab(73)"{wht}github.com/ops/bjr/"

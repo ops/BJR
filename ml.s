@@ -34,6 +34,7 @@ CH_WALL_MAX      = $7F
 
         .include "cbm_kernal.inc"
         .include "vic20.inc"
+        .include "VERSION"
 
         .segment "LOADADDR"
         .export  __LOADADDR__: absolute = 1
@@ -48,6 +49,7 @@ CH_WALL_MAX      = $7F
         jmp load_map            ; 09
         jmp initialise          ; 12
         jmp set_positions       ; 15
+        jmp print_version       ; 18
 
 .proc clear_screen
         jsr     CLRSCR
@@ -131,6 +133,18 @@ CH_WALL_MAX      = $7F
         rts
 
 pos:    .word   SCREEN_MEM+53, SCREEN_MEM+76, SCREEN_MEM+755, SCREEN_MEM+778
+.endproc
+
+.proc print_version
+        lda     #'v'-64
+        sta     SCREEN_MEM+30*26+20
+        lda     #BJR_VERSION_MAJOR+'0'
+        sta     SCREEN_MEM+30*26+21
+        lda     #'.'
+        sta     SCREEN_MEM+30*26+22
+        lda     #BJR_VERSION_MINOR+'0'
+        sta     SCREEN_MEM+30*26+23
+        rts
 .endproc
 
 .proc my_irq

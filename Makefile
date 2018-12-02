@@ -1,6 +1,9 @@
 #
 # Makefile for BJR
 #
+include VERSION
+
+VERSION_STR=$(BJR_VERSION_MAJOR).$(BJR_VERSION_MINOR)
 
 BAS_PRG = main.prg
 BAS_SRC = main.bas
@@ -18,7 +21,7 @@ BJR_PRG = bjr-2018
 BJR_OBJECTS := bjr.o
 BJR_START_ADDR := 4609
 
-IMAGE := bjr-2018.d64
+IMAGE := bjr-v$(VERSION_STR).d64
 
 AS := ca65
 LD := ld65
