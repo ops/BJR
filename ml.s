@@ -17,8 +17,8 @@ GHOST_DELAY     := $033D
 PLAYER_DELAY    := $033E
 PLAYER_CH_DELAY := $033F
 PLAYER_POS      := $0340
-GHOST_POS       := $0342  ; to $0347
-CONTROL         := 888    ; $0378
+GHOST_POS       := PLAYER_POS+2  ; 3 x word
+CONTROL         := 888           ; $0378
 
 MAP_X_SIZE       = 26
 
@@ -46,7 +46,8 @@ CH_WALL_MAX      = $7F
         jmp set_tune            ; 03
         jmp paint_lanes         ; 06
         jmp load_map            ; 09
-        jmp start_irq           ; 12
+        jmp initialise          ; 12
+        jmp set_positions       ; 15
 
 .proc clear_screen
         jsr     CLRSCR
@@ -105,7 +106,13 @@ CH_WALL_MAX      = $7F
         jmp     LOAD
 .endproc
 
-.proc start_irq
+.proc initialise
+        lda     #CH_PLAYER_MIN
+        sta     CURR_PLAYER_CH
+        lda     #1
+        sta     GHOST_DELAY
+        sta     PLAYER_DELAY
+        sta     PLAYER_CH_DELAY
         sei
         lda     #<my_irq
         sta     IRQVec
@@ -113,6 +120,17 @@ CH_WALL_MAX      = $7F
         sta     IRQVec+1
         cli
         rts
+.endproc
+
+.proc set_positions
+        ldx     #4*2-1
+:       lda     pos,x
+        sta     PLAYER_POS,x
+        dex
+        bpl     :-
+        rts
+
+pos:    .word   SCREEN_MEM+53, SCREEN_MEM+76, SCREEN_MEM+755, SCREEN_MEM+778
 .endproc
 
 .proc my_irq

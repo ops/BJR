@@ -23,7 +23,7 @@
 220 return
 
 ;; Game loop
-230 ti$="000000":hp=sc+778:c=0:gosub1040
+230 ti$="000000":hp=sc+778:c=0:sys(ml+15)
 240 gosub210:poke888,7
 250 r=int(60-ti/60):ifr<0then550
 260 print"{home}time:"r"{left} "
@@ -121,8 +121,6 @@
 1020 fori=15to0step-.05:poke36878,i:next
 1030 gosub1230:poke36878,15:return
 
-1040 restore:fori=0to7:reada:poke832+i,a:next:return
-
 ;; Initial setup
 1050 clr:poke648,28
 1060 deffnn(x)=peek(x)+256*peek(x+1)
@@ -131,7 +129,6 @@
 1090 ml=9216:sc=7168:el=8:dn=peek(186)
 1110 gosub1140
 1120 poke888,0:poke0,255
-1125 poke828,111:poke829,1:poke830,1:poke831,1
 1130 sys(ml+12):sys(ml+00):goto360
 
 ;; Title screen
@@ -149,5 +146,3 @@
 
 ;; Silence sounds
 1230 fori=0to3:poke36874+i,0:next:return
-
-1240 data53,28,76,28,243,30,10,31
