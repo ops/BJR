@@ -47,7 +47,7 @@ Start:
         sta     VIC_COLOR
 
         lda     #$01
-        ldx     $BA
+        ldx     DEVNUM
         ldy     #$FF
         jsr     SETLFS
         lda     #fname_end-fname
