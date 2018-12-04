@@ -53,7 +53,7 @@
 480 l=l+1:ifl>8thenl=1
 490 l$=str$(l):l$=mid$(l$,2)
 500 ifl<10thenl$="0"+l$
-510 l$="map"+l$+".bin"
+510 l$="map"+l$
 520 sys(ml+09),l$,dn
 530 fori=18toa-4:print"{home}"mid$(a$,i,26):gosub990:next
 540 sys(ml+06):goto230
