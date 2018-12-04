@@ -17,7 +17,7 @@ LOADER_PRG = loader
 LOADER_OBJECTS := loader.o
 LOADER_START_ADDR := 8192
 
-BJR_PRG = bjr-2018
+BJR_PRG = bomb-jack
 BJR_OBJECTS := bjr.o
 BJR_START_ADDR := 4609
 
@@ -49,24 +49,24 @@ $(LOADER_PRG): $(ML_CONFIG) $(LOADER_OBJECTS)
 	$(LD) $(LDFLAGS) -o $@ -S $(LOADER_START_ADDR) $(LOADER_OBJECTS)
 
 $(BJR_PRG): $(ML_CONFIG) $(BJR_OBJECTS)
-	$(LD) $(LDFLAGS) -o "$@" -S $(BJR_START_ADDR) $(BJR_OBJECTS)
+	$(LD) $(LDFLAGS) -o $@ -S $(BJR_START_ADDR) $(BJR_OBJECTS)
 
 image: all
 	c1541 -format bjr-2018,os d64 $(IMAGE)
 	c1541 $(IMAGE) -write $(BJR_PRG)
 	c1541 $(IMAGE) -write $(LOADER_PRG)
-	c1541 $(IMAGE) -write picture.bin
+	c1541 $(IMAGE) -write picture
 	c1541 $(IMAGE) -write $(ML_PRG)
-	c1541 $(IMAGE) -write chr.bin
+	c1541 $(IMAGE) -write chr.prg
 	c1541 $(IMAGE) -write $(BAS_PRG)
-	c1541 $(IMAGE) -write map01.bin
-	c1541 $(IMAGE) -write map02.bin
-	c1541 $(IMAGE) -write map03.bin
-	c1541 $(IMAGE) -write map04.bin
-	c1541 $(IMAGE) -write map05.bin
-	c1541 $(IMAGE) -write map06.bin
-	c1541 $(IMAGE) -write map07.bin
-	c1541 $(IMAGE) -write map08.bin
+	c1541 $(IMAGE) -write map01
+	c1541 $(IMAGE) -write map02
+	c1541 $(IMAGE) -write map03
+	c1541 $(IMAGE) -write map04
+	c1541 $(IMAGE) -write map05
+	c1541 $(IMAGE) -write map06
+	c1541 $(IMAGE) -write map07
+	c1541 $(IMAGE) -write map08
 
 release: image
 	zip -9 $(RELEASE_FILE) $(IMAGE)
