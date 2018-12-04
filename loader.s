@@ -27,7 +27,7 @@ NEWSTT := $C7AE
 
         lda     #$0A
         sta     CHARCOLOR
-        lda     #$1E            ; set screen memory
+        lda     #>$1E00         ; set screen memory
         sta     $0288           ; start to $1E00
         jsr     CLRSCR
 
@@ -35,7 +35,7 @@ NEWSTT := $C7AE
         sta     VIC_CR0
         lda     #$2B
         sta     VIC_CR1
-        lda     #$80+COLUMNS
+        lda     #$80 | COLUMNS
         sta     VIC_CR2
         lda     #(ROWS << 1) | $01
         sta     VIC_CR3
@@ -69,7 +69,7 @@ NEWSTT := $C7AE
         ldy     #>pic
         jsr     SETNAM
         lda     #$00
-        ;jsr     LOAD
+        jsr     LOAD
 
         ; load ML routines
         lda     #$01
@@ -92,9 +92,9 @@ NEWSTT := $C7AE
         ldx     #<chr
         ldy     #>chr
         jsr     SETNAM
-        lda     #$00
-        ldx     #<($3c00)
-        ldy     #>($3c00)
+        lda     #$00            ; load temporarily
+        ldx     #<($3C00)       ; to $3C00 so it doesn't
+        ldy     #>($3C00)       ; overwrite loading picture
         jsr     LOAD
 
         ; load main program
@@ -111,19 +111,19 @@ NEWSTT := $C7AE
 
         stx     $2D
         sty     $2E
-        lda     #$00
-        sta     $2C00
+        ldy     #$00
+        sty     $2C00
         lda     #<$2C01
         sta     $2B
         lda     #>$2C01
         sta     $2C
 
-        ldy     #$00
+        ; copy character data to $1800 ->
         sty     PTR1
         sty     PTR2
-        lda     #$3C
+        lda     #>$3C00
         sta     PTR1+1
-        lda     #$18
+        lda     #>$1800
         sta     PTR2+1
         ldx     #$04
 @loop:  lda     (PTR1),y
@@ -177,13 +177,13 @@ NEWSTT := $C7AE
         rts
 .endproc
 
-pic:    .byte "picture.bin"
+pic:    .byte "picture"
 pic_end:
 
 ml:     .byte "ml.prg"
 ml_end:
 
-chr:    .byte "chr.bin"
+chr:    .byte "chr.prg"
 chr_end:
 
 main:   .byte "main.prg"
