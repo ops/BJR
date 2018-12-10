@@ -147,16 +147,16 @@ NEWSTT := $C7AE
 @loop1: txa
         ldy     #$00
 @loop2: sta     (PTR1),y
-        adc     #10
+        adc     #ROWS
         iny
-        cpy     #22
+        cpy     #COLUMNS
         bne     @loop2
         tya
         clc
         adc     PTR1
         sta     PTR1
         inx
-        cpx     #10
+        cpx     #ROWS
         bne     @loop1
         rts
 .endproc
