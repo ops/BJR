@@ -94,7 +94,7 @@
 465   next
 470   poke36878,i
 475 next
-480 poke36874,0:poke36878,15:print"{wht}":return
+480 poke36874,0:poke36878,8:print"{wht}":return
 
 ;; Set up a new game
 485 l=0:el=8:poke888,0:poke0,255:gosub655:sys(ml+00)
@@ -119,13 +119,13 @@
 550 poke36879,24:poke888,0:gosub655
 555 poke36877,140:poke36879,8:poke36874,128
 560 fori=15to0step-.05:poke36878,i:next
-565 gosub655:poke36878,15:return
+565 gosub655:poke36878,8:return
 
 ;; Initial setup
 570 clr:poke648,28
 575 deffnn(x)=peek(x)+256*peek(x+1)
 580 poke36864,8:poke36865,27:poke36866,26:poke36867,62:poke36869,254
-585 poke36879,8:poke36878,15
+585 poke36879,8:poke36878,8
 590 ml=9216:sc=7168:el=8:dn=peek(186)
 595 gosub610
 600 poke888,0:poke0,255
