@@ -30,8 +30,6 @@ CH_BOMB          = $74
 CH_WALL_MIN      = $75
 CH_WALL_MAX      = $7F
 
-        .setcpu "6502"
-
         .include "cbm_kernal.inc"
         .include "vic20.inc"
         .include "VERSION"

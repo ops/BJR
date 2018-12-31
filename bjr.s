@@ -4,8 +4,6 @@
 ;;; 1985,2018 ops
 ;;;
 
-        .setcpu "6502"
-
         .include "cbm_kernal.inc"
         .include "vic20.inc"
 

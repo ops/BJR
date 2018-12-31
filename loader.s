@@ -14,8 +14,6 @@ LNKPRG := $C533
 STXTPT := $C68E
 NEWSTT := $C7AE
 
-        .setcpu "6502"
-
         .include "cbm_kernal.inc"
         .include "vic20.inc"
 
