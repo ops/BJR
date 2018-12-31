@@ -1,6 +1,7 @@
 #
 # Makefile for BJR
 #
+
 include VERSION
 
 VERSION_STR=v$(BJR_VERSION_MAJOR).$(BJR_VERSION_MINOR)
@@ -37,7 +38,7 @@ LDFLAGS = -C $(ML_CONFIG)
 
 
 all: $(BAS_PRG) $(ML_PRG) $(LOADER_PRG) $(BJR_PRG)
-.PHONY: all image clean
+.PHONY: all image release testimage clean
 
 $(BAS_PRG): $(BAS_SRC)
 	$(PETCAT) $(PETCAT_FLAGS) -o $@ $(BAS_SRC)
